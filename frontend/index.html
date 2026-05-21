@@ -910,7 +910,7 @@ function renderGrid(){
 
 async function loadDeals() {
   try {
-    const res = await fetch('hhttps://one0hotdeal.onrender.com/api/deals');
+    const res = await fetch('https://one0hotdeal.onrender.com/api/deals');
     allDeals = await res.json();
     renderGrid();
   } catch(e) {
