@@ -437,9 +437,20 @@ main {
   width: 100%;
   height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 48px;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--bg3) 0%, var(--bg2) 100%);
+}
+
+.card-img-placeholder .ph-icon { font-size: 38px; }
+.card-img-placeholder .ph-text {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--text3);
+  font-family: 'Noto Sans KR', sans-serif;
 }
 
 .discount-overlay {
@@ -864,7 +875,18 @@ function filtered(){
 
 function renderCard(deal,idx){
   // ✅ DB 컬럼명에 맞게 수정
-  const imgUrl = deal.image_url || deal.image_source || '';
+  const FALLBACK_IMAGES = {
+    '전자제품': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80',
+    '패션': 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400&q=80',
+    '식품': 'https://images.unsplash.com/photo-1506617420156-8e4536971650?w=400&q=80',
+    '생활용품': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80',
+    '뷰티': 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?w=400&q=80',
+    '스포츠': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&q=80',
+    '기본': 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=400&q=80',
+  };
+  const imgUrl = deal.image_url || deal.image_source
+    || FALLBACK_IMAGES[deal.category]
+    || FALLBACK_IMAGES['기본'];
   const priceRaw = deal.price_text || '';
   const priceNum = parseInt(priceRaw.replace(/[^0-9]/g,''));
   const linkUrl = deal.affiliate_url || deal.source_url || deal.seller_url || '#';
@@ -879,9 +901,14 @@ function renderCard(deal,idx){
       ${isNew?'<span class="badge badge-new">NEW</span>':''}
     </div>
     <div class="card-img-wrap">
-      ${imgUrl
-        ?`<img class="card-img" src="${imgUrl}" alt="${title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=card-img-placeholder>🛒</div>'">`
-        :`<div class="card-img-placeholder">🛒</div>`}
+      <img class="card-img" src="${imgUrl}"
+        alt="${title}" loading="lazy"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+      >
+      <div class="card-img-placeholder" style="display:none">
+        <span class="ph-icon">🛒</span>
+        <span class="ph-text">이미지 준비중</span>
+      </div>
     </div>
     <div class="card-body">
       <div class="card-seller">${deal.seller_type||deal.source||''}</div>
