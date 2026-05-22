@@ -26,10 +26,17 @@ def get_deals():
     cur.execute("""
         SELECT
             title,
+            product_name,
             price_text,
+            image_url,
             image_source,
             seller_type,
+            seller_url,
             affiliate_url,
+            source_url,
+            source,
+            recommendation_count,
+            comment_count,
             last_seen_at
         FROM hot_deals
         ORDER BY last_seen_at DESC

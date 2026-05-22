@@ -856,40 +856,44 @@ function nowStr(){
 function filtered(){
   let d=currentCat==='전체'?[...allDeals]:allDeals.filter(x=>x.category===currentCat);
   if(currentSort==='discount') d.sort((a,b)=>b.discount-a.discount);
-  else if(currentSort==='price_asc') d.sort((a,b)=>parseInt(a.price_text)-parseInt(b.price_text));
-  else if(currentSort==='price_desc') d.sort((a,b)=>parseInt(b.price_text)-parseInt(a.price_text));
+  else if(currentSort==='price_asc') d.sort((a,b)=>parseInt((a.price_text||'0').replace(/[^0-9]/g,''))-parseInt((b.price_text||'0').replace(/[^0-9]/g,'')));
+  else if(currentSort==='price_desc') d.sort((a,b)=>parseInt((b.price_text||'0').replace(/[^0-9]/g,''))-parseInt((a.price_text||'0').replace(/[^0-9]/g,'')));
   else d.sort((a,b)=>new Date(b.last_seen_at)-new Date(a.last_seen_at));
   return d;
 }
 
 function renderCard(deal,idx){
-  const price=parseInt(deal.price_text);
-  const orig=deal.original_price?parseInt(deal.original_price):null;
-  const isNew=(Date.now()-new Date(deal.last_seen_at))<300000;
+  // ✅ DB 컬럼명에 맞게 수정
+  const imgUrl = deal.image_url || deal.image_source || '';
+  const priceRaw = deal.price_text || '';
+  const priceNum = parseInt(priceRaw.replace(/[^0-9]/g,''));
+  const linkUrl = deal.affiliate_url || deal.source_url || deal.seller_url || '#';
+  const title = deal.product_name || deal.title || '';
+  const isNew = (Date.now()-new Date(deal.last_seen_at))<300000;
+  const recCount = deal.recommendation_count || 0;
+  const cmtCount = deal.comment_count || 0;
   return `
-  <div class="deal-card" style="animation-delay:${idx*0.05}s" onclick="window.open('${deal.affiliate_url}','_blank')">
+  <div class="deal-card" style="animation-delay:${idx*0.05}s" onclick="window.open('${linkUrl}','_blank')">
     <div class="card-badges">
-      ${deal.is_hot?'<span class="badge badge-hot">HOT</span>':''}
+      ${recCount>=10?'<span class="badge badge-hot">HOT</span>':''}
       ${isNew?'<span class="badge badge-new">NEW</span>':''}
     </div>
     <div class="card-img-wrap">
-      ${deal.image_source
-        ?`<img class="card-img" src="${deal.image_source}" alt="${deal.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=card-img-placeholder>🛒</div>'">`
+      ${imgUrl
+        ?`<img class="card-img" src="${imgUrl}" alt="${title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=card-img-placeholder>🛒</div>'">`
         :`<div class="card-img-placeholder">🛒</div>`}
-      ${deal.discount?`<div class="discount-overlay">-${deal.discount}%</div>`:''}
     </div>
     <div class="card-body">
-      <div class="card-seller">${deal.seller_type||''}</div>
-      <div class="card-title">${deal.title}</div>
+      <div class="card-seller">${deal.seller_type||deal.source||''}</div>
+      <div class="card-title">${title}</div>
       <div class="card-price-row">
         <div class="price-left">
-          <span class="card-price">${price.toLocaleString()}원</span>
-          ${orig?`<span class="card-original">${orig.toLocaleString()}원</span>`:''}
+          <span class="card-price">${isNaN(priceNum)?priceRaw:priceNum.toLocaleString()+'원'}</span>
         </div>
       </div>
       <div class="card-footer">
-        <span class="card-time">🕐 ${timeAgo(deal.last_seen_at)}</span>
-        <button class="card-btn" onclick="event.stopPropagation();window.open('${deal.affiliate_url}','_blank')">구매하기 →</button>
+        <span class="card-time">🕐 ${timeAgo(deal.last_seen_at)} &nbsp;👍 ${recCount} 💬 ${cmtCount}</span>
+        <button class="card-btn" onclick="event.stopPropagation();window.open('${linkUrl}','_blank')">구매하기 →</button>
       </div>
     </div>
   </div>`;
