@@ -683,6 +683,41 @@ footer {
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+/* ── 모바일 최적화 ── */
+@media (max-width: 600px) {
+  .header-inner { padding: 0 1rem; gap: 8px; height: 56px; }
+  .logo-text { font-size: 17px; }
+  .logo-fire { font-size: 18px; }
+  .live-badge { display: none; }
+  .refresh-timer { display: none; }
+  .header-sns { gap: 6px; margin-left: auto; }
+  .sns-icon-btn { width: 30px; height: 30px; border-radius: 7px; }
+  .theme-toggle { width: 30px; height: 30px; border-radius: 7px; font-size: 14px; }
+  .stats-inner { gap: 1rem; overflow-x: auto; padding-bottom: 2px; flex-wrap: nowrap; scrollbar-width: none; }
+  .stats-inner::-webkit-scrollbar { display: none; }
+  .stat-item { flex-shrink: 0; font-size: 12px; }
+  main { padding: 1rem; }
+  .filter-section { gap: 8px; }
+  .filter-chips { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; padding-bottom: 2px; }
+  .filter-chips::-webkit-scrollbar { display: none; }
+  .chip { flex-shrink: 0; padding: 5px 13px; font-size: 12px; }
+  .sort-select { margin-left: 0; font-size: 12px; width: 100%; }
+  .deals-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .card-body { padding: 10px; }
+  .card-title { font-size: 12px; }
+  .card-price { font-size: 18px; }
+  .card-btn { padding: 5px 10px; font-size: 11px; }
+  .card-time { font-size: 10px; }
+  .ticker-wrap { height: 28px; }
+  .ticker-item { font-size: 11px; padding: 0 1rem; }
+  .footer-inner { grid-template-columns: 1fr; gap: 1.5rem; }
+  .footer-sns-btn { width: 100%; }
+  .footer-bottom { flex-direction: column; gap: 6px; text-align: center; }
+}
+@media (max-width: 360px) {
+  .deals-grid { grid-template-columns: 1fr; }
+}
+
 </style>
 </head>
 <body>
@@ -947,6 +982,21 @@ async function loadDeals() {
   } catch(e) {
     console.error('로드 실패:', e);
   }
+}
+
+async function loadTicker() {
+  const res = await fetch('/api/ticker');
+  const items = await res.json();
+  const track = document.getElementById('ticker');
+  const html = [...items, ...items] // 무한루프용 2배
+    .map(d => `
+      <span class="ticker-item">
+        🔥 ${d.title.slice(0,20)}...
+        <span class="ticker-sep">|</span>
+        ${d.price_text}
+      </span>`)
+    .join('');
+  track.innerHTML = html;
 }
 
 function showToast(){

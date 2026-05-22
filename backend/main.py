@@ -19,24 +19,31 @@ app.add_middleware(
 def get_conn():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
 
+@app.get("/api/ticker")
+def get_ticker():
+    conn = get_conn()  # ✅ 이거 꼭 있어야 함
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("""
+        SELECT title, price_text
+        FROM hot_deals
+        ORDER BY recommendation_count DESC
+        LIMIT 10
+    """)
+    rows = cur.fetchall()
+    conn.close()  # ✅ 연결 닫기
+    return list(rows)
+
 @app.get("/api/deals")
 def get_deals():
-    conn = get_conn()
+    conn = get_conn()  # ✅ 여기도 동일하게
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute("""
         SELECT
-            title,
-            product_name,
-            price_text,
-            image_url,
-            image_source,
-            seller_type,
-            seller_url,
-            affiliate_url,
-            source_url,
-            source,
-            recommendation_count,
-            comment_count,
+            title, product_name, price_text,
+            image_url, image_source,
+            seller_type, seller_url,
+            affiliate_url, source_url, source,
+            recommendation_count, comment_count,
             last_seen_at
         FROM hot_deals
         ORDER BY last_seen_at DESC
