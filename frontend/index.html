@@ -732,20 +732,7 @@ footer {
 
 <!-- 티커 -->
 <div class="ticker-wrap">
-  <div class="ticker-track">
-    <span class="ticker-item">🔥 다이슨 에어랩 <span class="ticker-sep">|</span> 459,000원</span>
-    <span class="ticker-item">⚡ 갤럭시 버즈3 프로 <span class="ticker-sep">|</span> 89,000원 역대최저</span>
-    <span class="ticker-item">🛒 무선청소기 <span class="ticker-sep">|</span> 67% 할인</span>
-    <span class="ticker-item">💥 나이키 에어포스1 <span class="ticker-sep">|</span> 59,000원 한정수량</span>
-    <span class="ticker-item">🎮 PS5 슬림 <span class="ticker-sep">|</span> 469,000원 특가</span>
-    <span class="ticker-item">📱 아이패드 에어 M2 <span class="ticker-sep">|</span> 699,000원</span>
-    <span class="ticker-item">🔥 다이슨 에어랩 <span class="ticker-sep">|</span> 459,000원</span>
-    <span class="ticker-item">⚡ 갤럭시 버즈3 프로 <span class="ticker-sep">|</span> 89,000원 역대최저</span>
-    <span class="ticker-item">🛒 무선청소기 <span class="ticker-sep">|</span> 67% 할인</span>
-    <span class="ticker-item">💥 나이키 에어포스1 <span class="ticker-sep">|</span> 59,000원 한정수량</span>
-    <span class="ticker-item">🎮 PS5 슬림 <span class="ticker-sep">|</span> 469,000원 특가</span>
-    <span class="ticker-item">📱 아이패드 에어 M2 <span class="ticker-sep">|</span> 699,000원</span>
-  </div>
+  <div class="ticker-track" id="ticker-track"></div>
 </div>
 
 <!-- 헤더 -->
@@ -984,27 +971,12 @@ function renderGrid(){
 
 async function loadDeals() {
   try {
-    const res = await fetch('https://one0hotdeal.onrender.com/api/deals');
+    const res = await fetch(API_URL + '/api/deals');
     allDeals = await res.json();
     renderGrid();
   } catch(e) {
     console.error('로드 실패:', e);
   }
-}
-
-async function loadTicker() {
-  const res = await fetch('/api/ticker');
-  const items = await res.json();
-  const track = document.getElementById('ticker');
-  const html = [...items, ...items] // 무한루프용 2배
-    .map(d => `
-      <span class="ticker-item">
-        🔥 ${d.title.slice(0,20)}...
-        <span class="ticker-sep">|</span>
-        ${d.price_text}
-      </span>`)
-    .join('');
-  track.innerHTML = html;
 }
 
 function showToast(){
@@ -1048,7 +1020,31 @@ document.getElementById('sort-select').addEventListener('change',e=>{
   renderGrid();
 });
 
-setTimeout(()=>{loadDeals();startTimer();},700);
+// ── API BASE URL ──
+const API_URL = 'https://one0hotdeal.onrender.com';
+
+// ── 티커 로드 ──
+async function loadTicker() {
+  try {
+    const res = await fetch(API_URL + '/api/ticker');
+    const items = await res.json();
+    if (!items || !items.length) return;
+    const ICONS = ['🔥','⚡','🛒','💥','🎯','💸','🏷️','✨'];
+    // 무한루프를 위해 2배 복제
+    const all = [...items, ...items];
+    const html = all.map((d, i) => {
+      const icon = ICONS[i % ICONS.length];
+      const title = (d.product_name || d.title || '').slice(0, 22);
+      const price = d.price_text ? d.price_text : '';
+      return `<span class="ticker-item">${icon} ${title} <span class="ticker-sep">|</span> ${price}</span>`;
+    }).join('');
+    document.getElementById('ticker-track').innerHTML = html;
+  } catch(e) {
+    console.error('티커 로드 실패:', e);
+  }
+}
+
+setTimeout(()=>{loadTicker();loadDeals();startTimer();},700);
 </script>
 </body>
 </html>
