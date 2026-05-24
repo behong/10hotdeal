@@ -1,6 +1,7 @@
 fastapi
-fastapi-cache2
 uvicorn
 psycopg2-binary
 python-dotenv
 slowapi
+fastapi-cache2
+jinja2
