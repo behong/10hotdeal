@@ -4,6 +4,10 @@ from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
+from fastapi_cache.decorator import cache
+from contextlib import asynccontextmanager
 import psycopg2
 import psycopg2.extras
 import os
@@ -13,7 +17,14 @@ load_dotenv()
 
 # ── Rate Limiter 설정 ──
 limiter = Limiter(key_func=get_remote_address)
-app = FastAPI()
+
+# ── 캐시 초기화 ──
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    FastAPICache.init(InMemoryBackend())
+    yield
+
+app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
@@ -43,7 +54,8 @@ def health():
 # ── 딜 목록 ──
 @app.get("/api/deals")
 @limiter.limit("30/minute")
-def get_deals(request: Request):
+@cache(expire=60)  # 60초 캐싱
+async def get_deals(request: Request):
     try:
         conn = get_conn()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -75,12 +87,13 @@ def get_deals(request: Request):
 # ── 티커용 인기 딜 ──
 @app.get("/api/ticker")
 @limiter.limit("30/minute")
-def get_ticker(request: Request):
+@cache(expire=300)  # 5분 캐싱
+async def get_ticker(request: Request):
     try:
         conn = get_conn()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute("""
-            SELECT title, price_text
+            SELECT title, product_name, price_text
             FROM hot_deals
             ORDER BY recommendation_count DESC
             LIMIT 10
