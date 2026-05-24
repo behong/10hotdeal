@@ -103,3 +103,39 @@ async def get_ticker(request: Request):
         return list(rows)
     except Exception as e:
         raise HTTPException(status_code=500, detail="티커 데이터를 불러올 수 없어요")
+    
+    # ── 검색 ──
+@app.get("/api/search")
+@limiter.limit("30/minute")
+async def search_deals(request: Request, q: str = ""):
+    if not q or len(q.strip()) < 2:
+        raise HTTPException(status_code=400, detail="검색어를 2자 이상 입력해주세요")
+    try:
+        conn = get_conn()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute("""
+            SELECT
+                title,
+                product_name,
+                price_text,
+                image_url,
+                image_source,
+                seller_type,
+                seller_url,
+                affiliate_url,
+                source_url,
+                source,
+                recommendation_count,
+                comment_count,
+                last_seen_at
+            FROM hot_deals
+            WHERE title ILIKE %s
+               OR product_name ILIKE %s
+            ORDER BY last_seen_at DESC
+            LIMIT 50
+        """, (f"%{q}%", f"%{q}%"))
+        rows = cur.fetchall()
+        conn.close()
+        return list(rows)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="검색 중 오류가 발생했어요")

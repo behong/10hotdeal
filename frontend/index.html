@@ -688,6 +688,81 @@ footer {
 
 .toast.show { transform: translateX(-50%) translateY(0); }
 
+
+/* ── 검색창 ── */
+.search-wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem 0;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-box:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255,45,45,0.1);
+}
+
+.search-icon {
+  padding: 0 14px;
+  font-size: 18px;
+  color: var(--text3);
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 14px 0;
+  font-size: 15px;
+  color: var(--text);
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.search-input::placeholder { color: var(--text3); }
+
+.search-clear {
+  padding: 0 14px;
+  font-size: 18px;
+  color: var(--text3);
+  cursor: pointer;
+  background: none;
+  border: none;
+  display: none;
+  transition: color 0.2s;
+}
+
+.search-clear:hover { color: var(--accent); }
+
+.search-result-label {
+  font-size: 13px;
+  color: var(--text2);
+  margin-top: 10px;
+  padding: 0 2px;
+  min-height: 20px;
+}
+
+.search-result-label em {
+  color: var(--accent);
+  font-style: normal;
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .search-wrap { padding: 1rem 1rem 0; }
+  .search-input { font-size: 14px; padding: 12px 0; }
+}
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
@@ -777,6 +852,23 @@ footer {
 
 <!-- 메인 -->
 <main>
+<!-- 검색창 -->
+<div class="search-wrap">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input
+      class="search-input"
+      id="search-input"
+      type="text"
+      placeholder="찾고 싶은 상품을 검색해보세요 (예: 다이슨, 갤럭시...)"
+      autocomplete="off"
+    >
+    <button class="search-clear" id="search-clear">✕</button>
+  </div>
+  <div class="search-result-label" id="search-result-label"></div>
+</div>
+
+
   <div class="filter-section">
     <span class="filter-label">카테고리</span>
     <div class="filter-chips">
@@ -879,7 +971,7 @@ const DUMMY_DEALS = [
   {id:8,title:"다이슨 V15 디텍트 무선청소기 앱솔루트 레이저 먼지감지",price_text:"569000",original_price:"999000",image_source:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80",affiliate_url:"#",seller_type:"쿠팡",category:"생활용품",discount:43,is_hot:true,last_seen_at:new Date()},
 ];
 
-let allDeals=[...DUMMY_DEALS], currentCat='전체', currentSort='latest';
+let allDeals=[...DUMMY_DEALS], currentCat='전체', currentSort='latest', isSearching=false;
 const REFRESH_SEC=30; let remaining=REFRESH_SEC;
 
 function timeAgo(d){
@@ -958,9 +1050,11 @@ function renderCard(deal,idx){
 
 function renderGrid(){
   const grid=document.getElementById('deals-grid');
+  const label=document.getElementById('search-result-label');
   const data=filtered();
   if(!data.length){
-    grid.innerHTML=`<div class="empty-state"><div class="empty-icon">😢</div><div class="empty-text">해당 카테고리 딜이 없어요</div><div class="empty-sub">다른 카테고리를 선택해 보세요</div></div>`;
+    if(label) label.innerHTML = isSearching ? `검색 결과가 없어요 😢` : '';
+    grid.innerHTML=`<div class="empty-state"><div class="empty-icon">😢</div><div class="empty-text">${isSearching?'검색 결과가 없어요':'해당 카테고리 딜이 없어요'}</div><div class="empty-sub">${isSearching?'다른 키워드로 검색해보세요':'다른 카테고리를 선택해 보세요'}</div></div>`;
     return;
   }
   grid.innerHTML=data.map((d,i)=>renderCard(d,i)).join('');
@@ -1043,6 +1137,79 @@ async function loadTicker() {
     console.error('티커 로드 실패:', e);
   }
 }
+
+
+// ── 검색 ──
+let searchTimer = null;
+
+async function searchDeals(q) {
+  const grid = document.getElementById('deals-grid');
+  const label = document.getElementById('search-result-label');
+
+  // 로딩 표시
+  grid.innerHTML = `
+    ${[...Array(4)].map(()=>`
+    <div class="skeleton-card">
+      <div class="skeleton sk-img"></div>
+      <div class="sk-body">
+        <div class="skeleton sk-line s"></div>
+        <div class="skeleton sk-line"></div>
+        <div class="skeleton sk-price"></div>
+      </div>
+    </div>`).join('')}`;
+
+  try {
+    const res = await fetch(API_URL + '/api/search?q=' + encodeURIComponent(q));
+    if (!res.ok) throw new Error();
+    allDeals = await res.json();
+    isSearching = true;
+    if(label) label.innerHTML = `<em>${q}</em> 검색 결과 ${allDeals.length}개`;
+    renderGrid();
+  } catch(e) {
+    if(label) label.innerHTML = '검색 중 오류가 발생했어요';
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">검색 중 오류가 발생했어요</div></div>`;
+  }
+}
+
+function clearSearch() {
+  const input = document.getElementById('search-input');
+  const clearBtn = document.getElementById('search-clear');
+  const label = document.getElementById('search-result-label');
+  input.value = '';
+  clearBtn.style.display = 'none';
+  if(label) label.innerHTML = '';
+  isSearching = false;
+  loadDeals();
+}
+
+// 검색 입력 이벤트
+document.getElementById('search-input').addEventListener('input', e => {
+  const q = e.target.value.trim();
+  const clearBtn = document.getElementById('search-clear');
+  clearBtn.style.display = q ? 'block' : 'none';
+
+  clearTimeout(searchTimer);
+  if (q.length >= 2) {
+    // 500ms 디바운스 (타이핑 멈추면 검색)
+    searchTimer = setTimeout(() => searchDeals(q), 500);
+  } else if (q.length === 0) {
+    clearSearch();
+  }
+});
+
+// X 버튼
+document.getElementById('search-clear').addEventListener('click', clearSearch);
+
+// 엔터키
+document.getElementById('search-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const q = e.target.value.trim();
+    if (q.length >= 2) {
+      clearTimeout(searchTimer);
+      searchDeals(q);
+    }
+  }
+});
 
 setTimeout(()=>{loadTicker();loadDeals();startTimer();},700);
 </script>
