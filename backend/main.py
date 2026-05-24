@@ -54,5 +54,6 @@ def get_deals():
     return list(rows)
 
 @app.get("/health")
+@app.head("/health")  # ✅ 이 줄 추가
 def health():
     return {"status": "ok"}
