@@ -11,6 +11,7 @@ from contextlib import asynccontextmanager
 import psycopg2
 import psycopg2.extras
 import os
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -44,6 +45,23 @@ app.add_middleware(
 # ── DB 연결 ──
 def get_conn():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
+
+# ── 네이버 쇼핑 이미지 검색 ──
+def get_naver_image(query: str) -> str:
+    try:
+        res = requests.get(
+            "https://openapi.naver.com/v1/search/shop.json",
+            headers={
+                "X-Naver-Client-Id": os.getenv("NAVER_CLIENT_ID"),
+                "X-Naver-Client-Secret": os.getenv("NAVER_CLIENT_SECRET"),
+            },
+            params={"query": query, "display": 1, "sort": "sim"},
+            timeout=3
+        )
+        items = res.json().get("items", [])
+        return items[0]["image"] if items else None
+    except Exception:
+        return None
 
 # ── Health Check ──
 @app.get("/health")
@@ -79,8 +97,19 @@ async def get_deals(request: Request, page: int = 1, limit: int = 20):
         """, (limit, offset))
         rows = cur.fetchall()
         conn.close()
+
+        # 이미지 없는 항목 네이버로 보완
+        result = []
+        for row in rows:
+            deal = dict(row)
+            if not deal.get("image_url") and not deal.get("image_source"):
+                query = deal.get("product_name") or deal.get("title") or ""
+                if query:
+                    deal["image_url"] = get_naver_image(query)
+            result.append(deal)
+
         return {
-            "items": list(rows),
+            "items": result,
             "total": int(total),
             "page": page,
             "has_more": (offset + limit) < int(total)
@@ -140,6 +169,17 @@ async def search_deals(request: Request, q: str = ""):
         """, (f"%{q}%", f"%{q}%"))
         rows = cur.fetchall()
         conn.close()
-        return list(rows)
+
+        # 이미지 없는 항목 네이버로 보완
+        result = []
+        for row in rows:
+            deal = dict(row)
+            if not deal.get("image_url") and not deal.get("image_source"):
+                query = deal.get("product_name") or deal.get("title") or ""
+                if query:
+                    deal["image_url"] = get_naver_image(query)
+            result.append(deal)
+
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail="검색 중 오류가 발생했어요")
