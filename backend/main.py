@@ -11,6 +11,7 @@ from contextlib import asynccontextmanager
 import psycopg2
 import psycopg2.extras
 import os
+import re
 import requests
 from dotenv import load_dotenv
 
@@ -63,6 +64,37 @@ def get_naver_image(query: str) -> str:
     except Exception:
         return None
 
+# ── 이미지 URL 정리 ──
+def clean_image_url(url):
+    if not url or str(url).strip().lower() in ('none', 'null', ''):
+        return None
+    return url
+
+# ── 검색 쿼리 정리 (가격/괄호/특수문자 제거) ──
+def clean_query(text):
+    if not text:
+        return ""
+    text = re.sub(r'\(.*?\)', '', text)           # 괄호 안 제거
+    text = re.sub(r'\d+[,\d]*원', '', text)       # 숫자+원 제거
+    text = re.sub(r'[^\w\s]', ' ', text)          # 특수문자 제거
+    return text.strip()
+
+# ── 이미지 보완 공통 함수 ──
+def fill_images(rows):
+    result = []
+    for row in rows:
+        deal = dict(row)
+        img = clean_image_url(deal.get("image_url"))            or clean_image_url(deal.get("image_source"))
+        if not img:
+            query = clean_query(
+                deal.get("product_name") or deal.get("title") or ""
+            )
+            deal["image_url"] = get_naver_image(query) if query else None
+        else:
+            deal["image_url"] = img
+        result.append(deal)
+    return result
+
 # ── Health Check ──
 @app.get("/health")
 @app.head("/health")
@@ -98,18 +130,8 @@ async def get_deals(request: Request, page: int = 1, limit: int = 20):
         rows = cur.fetchall()
         conn.close()
 
-        # 이미지 없는 항목 네이버로 보완
-        result = []
-        for row in rows:
-            deal = dict(row)
-            if not deal.get("image_url") and not deal.get("image_source"):
-                query = deal.get("product_name") or deal.get("title") or ""
-                if query:
-                    deal["image_url"] = get_naver_image(query)
-            result.append(deal)
-
         return {
-            "items": result,
+            "items": fill_images(rows),
             "total": int(total),
             "page": page,
             "has_more": (offset + limit) < int(total)
@@ -170,16 +192,6 @@ async def search_deals(request: Request, q: str = ""):
         rows = cur.fetchall()
         conn.close()
 
-        # 이미지 없는 항목 네이버로 보완
-        result = []
-        for row in rows:
-            deal = dict(row)
-            if not deal.get("image_url") and not deal.get("image_source"):
-                query = deal.get("product_name") or deal.get("title") or ""
-                if query:
-                    deal["image_url"] = get_naver_image(query)
-            result.append(deal)
-
-        return result
+        return fill_images(rows)
     except Exception as e:
         raise HTTPException(status_code=500, detail="검색 중 오류가 발생했어요")
