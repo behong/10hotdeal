@@ -763,6 +763,51 @@ footer {
   .search-wrap { padding: 1rem 1rem 0; }
   .search-input { font-size: 14px; padding: 12px 0; }
 }
+
+/* ── 무한스크롤 로더 ── */
+.load-more-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.load-more-spinner {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--text3);
+  font-size: 13px;
+}
+
+.spinner-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.spinner-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: dot-bounce 1.2s ease-in-out infinite;
+}
+
+.spinner-dot:nth-child(2) { animation-delay: 0.2s; }
+.spinner-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dot-bounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.no-more-deals {
+  display: none;
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 13px;
+  color: var(--text3);
+}
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
@@ -928,6 +973,18 @@ footer {
   </div>
 </div>
 
+  <!-- 무한스크롤 로더 -->
+  <div class="load-more-wrap">
+    <div class="load-more-spinner" id="load-spinner">
+      <div class="spinner-dots">
+        <div class="spinner-dot"></div>
+        <div class="spinner-dot"></div>
+        <div class="spinner-dot"></div>
+      </div>
+      <span>더 불러오는 중...</span>
+    </div>
+    <div class="no-more-deals" id="no-more">모든 핫딜을 확인했어요 🎉</div>
+  </div>
 </main>
 
 <!-- 푸터 -->
@@ -971,7 +1028,8 @@ const DUMMY_DEALS = [
   {id:8,title:"다이슨 V15 디텍트 무선청소기 앱솔루트 레이저 먼지감지",price_text:"569000",original_price:"999000",image_source:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80",affiliate_url:"#",seller_type:"쿠팡",category:"생활용품",discount:43,is_hot:true,last_seen_at:new Date()},
 ];
 
-let allDeals=[...DUMMY_DEALS], currentCat='전체', currentSort='latest', isSearching=false;
+let allDeals=[], currentCat='전체', currentSort='latest', isSearching=false;
+let currentPage=1, hasMore=true, isLoading=false, totalDeals=0;
 const REFRESH_SEC=30; let remaining=REFRESH_SEC;
 
 function timeAgo(d){
@@ -1058,19 +1116,54 @@ function renderGrid(){
     return;
   }
   grid.innerHTML=data.map((d,i)=>renderCard(d,i)).join('');
-  document.getElementById('stat-count').textContent=allDeals.length;
-  document.getElementById('stat-hot').textContent=allDeals.filter(d=>d.is_hot).length;
+  document.getElementById('stat-count').textContent=totalDeals||allDeals.length;
+  document.getElementById('stat-hot').textContent=allDeals.filter(d=>d.recommendation_count>=10).length;
   document.getElementById('stat-time').textContent=nowStr();
 }
 
-async function loadDeals() {
+async function loadDeals(reset=true) {
+  if(isLoading || (!hasMore && !reset)) return;
+  if(reset) {
+    currentPage=1;
+    hasMore=true;
+    allDeals=[];
+  }
+  isLoading=true;
+
+  const spinner=document.getElementById('load-spinner');
+  const noMore=document.getElementById('no-more');
+  spinner.style.display='flex';
+  noMore.style.display='none';
+
   try {
-    const res = await fetch(API_URL + '/api/deals');
-    allDeals = await res.json();
-    renderGrid();
+    const res = await fetch(API_URL + `/api/deals?page=${currentPage}&limit=20`);
+    const data = await res.json();
+
+    if(reset) {
+      allDeals = data.items;
+      renderGrid();
+    } else {
+      // 기존 카드에 추가
+      const grid = document.getElementById('deals-grid');
+      const startIdx = allDeals.length;
+      allDeals = [...allDeals, ...data.items];
+      const newCards = data.items.map((d,i)=>renderCard(d, startIdx+i)).join('');
+      grid.insertAdjacentHTML('beforeend', newCards);
+      document.getElementById('stat-count').textContent=data.total;
+    }
+
+    totalDeals = data.total;
+    hasMore = data.has_more;
+    currentPage++;
+
+    spinner.style.display='none';
+    if(!hasMore) noMore.style.display='block';
+
   } catch(e) {
     console.error('로드 실패:', e);
+    spinner.style.display='none';
   }
+  isLoading=false;
 }
 
 function showToast(){
@@ -1086,7 +1179,7 @@ function startTimer(){
     const pct=remaining/REFRESH_SEC*100;
     document.getElementById('timer-bar').style.width=pct+'%';
     document.getElementById('timer-text').textContent=remaining+'초';
-    if(remaining<=0){remaining=REFRESH_SEC;loadDeals();showToast();}
+    if(remaining<=0){remaining=REFRESH_SEC;loadDeals(true);showToast();}
   },1000);
 }
 
@@ -1179,7 +1272,7 @@ function clearSearch() {
   clearBtn.style.display = 'none';
   if(label) label.innerHTML = '';
   isSearching = false;
-  loadDeals();
+  loadDeals(true);
 }
 
 // 검색 입력 이벤트
@@ -1211,7 +1304,16 @@ document.getElementById('search-input').addEventListener('keydown', e => {
   }
 });
 
-setTimeout(()=>{loadTicker();loadDeals();startTimer();},700);
+// ── 무한스크롤 Observer ──
+const scrollObserver = new IntersectionObserver((entries) => {
+  if(entries[0].isIntersecting && !isSearching && hasMore && !isLoading) {
+    loadDeals(false);
+  }
+}, { threshold: 0.1 });
+
+scrollObserver.observe(document.getElementById('load-spinner'));
+
+setTimeout(()=>{loadTicker();loadDeals(true);startTimer();},700);
 </script>
 </body>
 </html>

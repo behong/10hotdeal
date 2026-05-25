@@ -51,36 +51,40 @@ def get_conn():
 def health():
     return {"status": "ok"}
 
-# ── 딜 목록 ──
+# ── 딜 목록 (페이지네이션) ──
 @app.get("/api/deals")
 @limiter.limit("30/minute")
-@cache(expire=60)  # 60초 캐싱
-async def get_deals(request: Request):
+async def get_deals(request: Request, page: int = 1, limit: int = 20):
+    offset = (page - 1) * limit
     try:
         conn = get_conn()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        # 전체 개수
+        cur.execute("SELECT COUNT(*) as count FROM hot_deals")
+        total = cur.fetchone()["count"]
+
+        # 페이지 데이터
         cur.execute("""
             SELECT
-                title,
-                product_name,
-                price_text,
-                image_url,
-                image_source,
-                seller_type,
-                seller_url,
-                affiliate_url,
-                source_url,
-                source,
-                recommendation_count,
-                comment_count,
+                title, product_name, price_text,
+                image_url, image_source,
+                seller_type, seller_url,
+                affiliate_url, source_url, source,
+                recommendation_count, comment_count,
                 last_seen_at
             FROM hot_deals
             ORDER BY last_seen_at DESC
-            LIMIT 50
-        """)
+            LIMIT %s OFFSET %s
+        """, (limit, offset))
         rows = cur.fetchall()
         conn.close()
-        return list(rows)
+        return {
+            "items": list(rows),
+            "total": int(total),
+            "page": page,
+            "has_more": (offset + limit) < int(total)
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail="데이터를 불러올 수 없어요")
 
