@@ -1143,17 +1143,20 @@ async function loadDeals(reset=true) {
       const startIdx = allDeals.length;
       allDeals = [...allDeals, ...data.items];
       const newCards = data.items.map((d,i)=>renderCard(d, startIdx+i)).join('');
-      // 카드 DOM 추가
-      grid.insertAdjacentHTML('beforeend', newCards);
+
+      // 스피너 자리에 임시 div 삽입 → 카드 추가 → 스피너 숨김
+      const tempDiv = document.createElement('div');
+      grid.appendChild(tempDiv);
+      tempDiv.outerHTML = newCards;
+
       document.getElementById('stat-count').textContent=data.total;
-      // 브라우저가 카드 그린 후 스피너 숨김
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          spinner.style.display='none';
-          if(!hasMore) noMore.style.display='block';
-          isLoading=false;
-        });
-      });
+
+      // 이미지 포함 실제 페인트 완료 후 숨김
+      setTimeout(() => {
+        spinner.style.display='none';
+        if(!hasMore) noMore.style.display='block';
+        isLoading=false;
+      }, 100);
     }
 
   } catch(e) {
