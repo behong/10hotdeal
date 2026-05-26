@@ -3,7 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔥 핫딜존 — 지금 안 사면 후회</title>
+<title>핫딜존 — 오늘의 최저가 핫딜 모음</title>
+
+<!-- SEO 메타 태그 -->
+<meta name="description" content="매일 업데이트되는 최저가 핫딜 정보. 쿠팡, 11번가, 지마켓 등 주요 쇼핑몰의 핫딜을 한눈에 확인하세요.">
+<meta name="keywords" content="핫딜, 최저가, 할인, 쇼핑, 쿠팡, 11번가, 지마켓">
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://hot.hongzi.us/">
+<meta property="og:title" content="핫딜존 — 오늘의 최저가 핫딜 모음">
+<meta property="og:description" content="매일 업데이트되는 최저가 핫딜 정보를 한눈에 확인하세요.">
+<meta property="og:locale" content="ko_KR">
+
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-HHYS4N1P0X"></script>
 <script>
@@ -12,7 +25,12 @@
   gtag('js', new Date());
   gtag('config', 'G-HHYS4N1P0X');
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Playfair+Display:wght@700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<!-- 폰트 preconnect (렌더링 차단 방지) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet"></noscript>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -994,16 +1012,7 @@ footer {
 <div class="toast" id="toast">🔄 새로운 핫딜이 업데이트됐어요!</div>
 
 <script>
-const DUMMY_DEALS = [
-  {id:1,title:"다이슨 에어랩 멀티 스타일러 컴플리트 롱 헤어드라이어 세트",price_text:"459000",original_price:"849000",image_source:"https://images.unsplash.com/photo-1522338242992-e1a54906a8da?w=400&q=80",affiliate_url:"#",seller_type:"쿠팡",category:"뷰티",discount:46,is_hot:true,last_seen_at:new Date()},
-  {id:2,title:"삼성 갤럭시 버즈3 프로 노이즈캔슬링 무선이어폰",price_text:"89000",original_price:"219000",image_source:"https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80",affiliate_url:"#",seller_type:"11번가",category:"전자제품",discount:59,is_hot:true,last_seen_at:new Date()},
-  {id:3,title:"나이키 에어포스1 07 화이트 스니커즈 한정수량 특가",price_text:"59000",original_price:"139000",image_source:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80",affiliate_url:"#",seller_type:"무신사",category:"패션",discount:58,is_hot:false,last_seen_at:new Date()},
-  {id:4,title:"아이패드 에어 M2 11인치 256GB Wi-Fi 스타라이트",price_text:"699000",original_price:"949000",image_source:"https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&q=80",affiliate_url:"#",seller_type:"애플",category:"전자제품",discount:26,is_hot:true,last_seen_at:new Date()},
-  {id:5,title:"뉴발란스 993 메이드인USA 클래식 러닝화 그레이",price_text:"189000",original_price:"289000",image_source:"https://images.unsplash.com/photo-1539185441755-769473a23570?w=400&q=80",affiliate_url:"#",seller_type:"뉴발란스",category:"스포츠",discount:35,is_hot:false,last_seen_at:new Date()},
-  {id:6,title:"PS5 슬림 디지털에디션 본체 듀얼센스 컨트롤러 포함",price_text:"469000",original_price:"598000",image_source:"https://images.unsplash.com/photo-1607853202273-797f1c22a38e?w=400&q=80",affiliate_url:"#",seller_type:"소니스토어",category:"전자제품",discount:22,is_hot:true,last_seen_at:new Date()},
-  {id:7,title:"오설록 제주 녹차 티백 선물세트 100입 프리미엄",price_text:"18900",original_price:"35000",image_source:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&q=80",affiliate_url:"#",seller_type:"오설록",category:"식품",discount:46,is_hot:false,last_seen_at:new Date()},
-  {id:8,title:"다이슨 V15 디텍트 무선청소기 앱솔루트 레이저 먼지감지",price_text:"569000",original_price:"999000",image_source:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80",affiliate_url:"#",seller_type:"쿠팡",category:"생활용품",discount:43,is_hot:true,last_seen_at:new Date()},
-];
+// 더미 데이터 제거 (실제 API 사용)
 
 let allDeals=[], currentCat='', currentSort='latest', isSearching=false;
 let currentPage=1, hasMore=true, isLoading=false, totalDeals=0;
