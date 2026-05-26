@@ -5,4 +5,3 @@ python-dotenv
 slowapi
 fastapi-cache2
 jinja2
-requests

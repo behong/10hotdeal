@@ -11,8 +11,6 @@ from contextlib import asynccontextmanager
 import psycopg2
 import psycopg2.extras
 import os
-import re
-import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -47,51 +45,21 @@ app.add_middleware(
 def get_conn():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
 
-# ── 네이버 쇼핑 이미지 검색 ──
-def get_naver_image(query: str) -> str:
-    try:
-        res = requests.get(
-            "https://openapi.naver.com/v1/search/shop.json",
-            headers={
-                "X-Naver-Client-Id": os.getenv("NAVER_CLIENT_ID"),
-                "X-Naver-Client-Secret": os.getenv("NAVER_CLIENT_SECRET"),
-            },
-            params={"query": query, "display": 1, "sort": "sim"},
-            timeout=3
-        )
-        items = res.json().get("items", [])
-        return items[0]["image"] if items else None
-    except Exception:
-        return None
-
 # ── 이미지 URL 정리 ──
 def clean_image_url(url):
     if not url or str(url).strip().lower() in ('none', 'null', ''):
         return None
     return url
 
-# ── 검색 쿼리 정리 (가격/괄호/특수문자 제거) ──
-def clean_query(text):
-    if not text:
-        return ""
-    text = re.sub(r'\(.*?\)', '', text)           # 괄호 안 제거
-    text = re.sub(r'\d+[,\d]*원', '', text)       # 숫자+원 제거
-    text = re.sub(r'[^\w\s]', ' ', text)          # 특수문자 제거
-    return text.strip()
-
-# ── 이미지 보완 공통 함수 ──
+# ── 이미지 정리 공통 함수 ──
 def fill_images(rows):
     result = []
     for row in rows:
         deal = dict(row)
-        img = clean_image_url(deal.get("image_url"))            or clean_image_url(deal.get("image_source"))
-        if not img:
-            query = clean_query(
-                deal.get("product_name") or deal.get("title") or ""
-            )
-            deal["image_url"] = get_naver_image(query) if query else None
-        else:
-            deal["image_url"] = img
+        deal["image_url"] = (
+            clean_image_url(deal.get("image_url"))
+            or clean_image_url(deal.get("image_source"))
+        )
         result.append(deal)
     return result
 
@@ -133,7 +101,6 @@ async def get_deals(request: Request, page: int = 1, limit: int = 40, seller: st
         conn = get_conn()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-        # 전체 개수
         # 전체 개수 (seller 필터 적용)
         if seller:
             cur.execute("SELECT COUNT(*) as count FROM hot_deals WHERE seller_type = %s", (seller,))
@@ -141,7 +108,6 @@ async def get_deals(request: Request, page: int = 1, limit: int = 40, seller: st
             cur.execute("SELECT COUNT(*) as count FROM hot_deals")
         total = cur.fetchone()["count"]
 
-        # 페이지 데이터
         # 페이지 데이터 (seller 필터 적용)
         if seller:
             cur.execute("""
