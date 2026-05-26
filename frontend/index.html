@@ -242,29 +242,7 @@ header {
 }
 
 /* 타이머 */
-.refresh-timer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--text2);
-  flex-shrink: 0;
-}
 
-.timer-bar-wrap {
-  width: 64px;
-  height: 3px;
-  background: var(--border);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.timer-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  border-radius: 2px;
-  transition: width 1s linear;
-}
 
 /* 테마 토글 */
 .theme-toggle {
@@ -827,7 +805,7 @@ footer {
   .logo-text { font-size: 17px; }
   .logo-fire { font-size: 18px; }
   .live-badge { display: none; }
-  .refresh-timer { display: none; }
+
   .header-sns { gap: 6px; margin-left: auto; }
   .sns-icon-btn { width: 30px; height: 30px; border-radius: 7px; }
   .theme-toggle { width: 30px; height: 30px; border-radius: 7px; font-size: 14px; }
@@ -876,12 +854,7 @@ footer {
       <span class="live-dot"></span>
       LIVE
     </div>
-    <div class="refresh-timer">
-      <span id="timer-text">30초</span>
-      <div class="timer-bar-wrap">
-        <div class="timer-bar" id="timer-bar"></div>
-      </div>
-    </div>
+
     <!-- 헤더 SNS 아이콘 -->
     <div class="header-sns">
       <a href="https://t.me/tenseco" target="_blank" class="sns-icon-btn sns-tg" title="텔레그램 채널">
@@ -1034,7 +1007,7 @@ const DUMMY_DEALS = [
 
 let allDeals=[], currentCat='', currentSort='latest', isSearching=false;
 let currentPage=1, hasMore=true, isLoading=false, totalDeals=0;
-const REFRESH_SEC=30; let remaining=REFRESH_SEC;
+
 
 function timeAgo(d){
   const s=Math.floor((Date.now()-new Date(d))/1000);
@@ -1176,16 +1149,7 @@ function showToast(){
   setTimeout(()=>t.classList.remove('show'),3000);
 }
 
-function startTimer(){
-  remaining=REFRESH_SEC;
-  setInterval(()=>{
-    remaining--;
-    const pct=remaining/REFRESH_SEC*100;
-    document.getElementById('timer-bar').style.width=pct+'%';
-    document.getElementById('timer-text').textContent=remaining+'초';
-    if(remaining<=0){remaining=REFRESH_SEC;loadDeals(true);showToast();}
-  },1000);
-}
+
 
 // 테마 토글
 const toggleBtn=document.getElementById('theme-toggle');
@@ -1338,7 +1302,7 @@ function onScroll() {
 
 window.addEventListener('scroll', onScroll, { passive: true });
 
-setTimeout(()=>{loadCategories();loadTicker();loadDeals(true);startTimer();},700);
+setTimeout(()=>{loadCategories();loadTicker();loadDeals(true);},700);
 </script>
 </body>
 </html>
