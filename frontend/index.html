@@ -1324,14 +1324,19 @@ document.getElementById('search-input').addEventListener('keydown', e => {
   }
 });
 
-// ── 무한스크롤 Observer ──
-const scrollObserver = new IntersectionObserver((entries) => {
-  if(entries[0].isIntersecting && !isSearching && hasMore && !isLoading) {
+// ── 무한스크롤 스크롤 이벤트 방식 ──
+function onScroll() {
+  if(isSearching || !hasMore || isLoading) return;
+  const scrollY = window.scrollY || window.pageYOffset;
+  const windowH = window.innerHeight;
+  const docH = document.documentElement.scrollHeight;
+  // 하단 400px 전에 미리 로드
+  if(scrollY + windowH >= docH - 400) {
     loadDeals(false);
   }
-}, { threshold: 0, rootMargin: '300px' });
+}
 
-scrollObserver.observe(document.getElementById('load-spinner'));
+window.addEventListener('scroll', onScroll, { passive: true });
 
 setTimeout(()=>{loadCategories();loadTicker();loadDeals(true);startTimer();},700);
 </script>
