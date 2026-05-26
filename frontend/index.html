@@ -1125,31 +1125,42 @@ async function loadDeals(reset=true) {
     const res = await fetch(API_URL + `/api/deals?page=${currentPage}&limit=40${currentCat?'&seller='+encodeURIComponent(currentCat):''}`);
     const data = await res.json();
 
-    if(reset) {
-      allDeals = data.items;
-      renderGrid();
-    } else {
-      // 기존 카드에 추가
-      const grid = document.getElementById('deals-grid');
-      const startIdx = allDeals.length;
-      allDeals = [...allDeals, ...data.items];
-      const newCards = data.items.map((d,i)=>renderCard(d, startIdx+i)).join('');
-      grid.insertAdjacentHTML('beforeend', newCards);
-      document.getElementById('stat-count').textContent=data.total;
-    }
-
     totalDeals = data.total;
     hasMore = data.has_more;
     currentPage++;
 
-    spinner.style.display='none';
-    if(!hasMore) noMore.style.display='block';
+    if(reset) {
+      allDeals = data.items;
+      renderGrid();
+      // 렌더링 완료 후 스피너 숨김
+      requestAnimationFrame(() => {
+        spinner.style.display='none';
+        if(!hasMore) noMore.style.display='block';
+        isLoading=false;
+      });
+    } else {
+      const grid = document.getElementById('deals-grid');
+      const startIdx = allDeals.length;
+      allDeals = [...allDeals, ...data.items];
+      const newCards = data.items.map((d,i)=>renderCard(d, startIdx+i)).join('');
+      // 카드 DOM 추가
+      grid.insertAdjacentHTML('beforeend', newCards);
+      document.getElementById('stat-count').textContent=data.total;
+      // 브라우저가 카드 그린 후 스피너 숨김
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          spinner.style.display='none';
+          if(!hasMore) noMore.style.display='block';
+          isLoading=false;
+        });
+      });
+    }
 
   } catch(e) {
     console.error('로드 실패:', e);
     spinner.style.display='none';
+    isLoading=false;
   }
-  isLoading=false;
 }
 
 function showToast(){
