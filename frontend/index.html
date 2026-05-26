@@ -916,14 +916,8 @@ footer {
 
   <div class="filter-section">
     <span class="filter-label">카테고리</span>
-    <div class="filter-chips">
-      <button class="chip active" data-cat="전체">전체</button>
-      <button class="chip" data-cat="전자제품">전자제품</button>
-      <button class="chip" data-cat="패션">패션</button>
-      <button class="chip" data-cat="식품">식품</button>
-      <button class="chip" data-cat="생활용품">생활용품</button>
-      <button class="chip" data-cat="뷰티">뷰티</button>
-      <button class="chip" data-cat="스포츠">스포츠</button>
+    <div class="filter-chips" id="filter-chips">
+      <button class="chip active" data-cat="">전체</button>
     </div>
     <select class="sort-select" id="sort-select">
       <option value="latest">최신순</option>
@@ -1028,7 +1022,7 @@ const DUMMY_DEALS = [
   {id:8,title:"다이슨 V15 디텍트 무선청소기 앱솔루트 레이저 먼지감지",price_text:"569000",original_price:"999000",image_source:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80",affiliate_url:"#",seller_type:"쿠팡",category:"생활용품",discount:43,is_hot:true,last_seen_at:new Date()},
 ];
 
-let allDeals=[], currentCat='전체', currentSort='latest', isSearching=false;
+let allDeals=[], currentCat='', currentSort='latest', isSearching=false;
 let currentPage=1, hasMore=true, isLoading=false, totalDeals=0;
 const REFRESH_SEC=30; let remaining=REFRESH_SEC;
 
@@ -1045,7 +1039,7 @@ function nowStr(){
 }
 
 function filtered(){
-  let d=currentCat==='전체'?[...allDeals]:allDeals.filter(x=>x.category===currentCat);
+  let d=[...allDeals];
   if(currentSort==='discount') d.sort((a,b)=>b.discount-a.discount);
   else if(currentSort==='price_asc') d.sort((a,b)=>parseInt((a.price_text||'0').replace(/[^0-9]/g,''))-parseInt((b.price_text||'0').replace(/[^0-9]/g,'')));
   else if(currentSort==='price_desc') d.sort((a,b)=>parseInt((b.price_text||'0').replace(/[^0-9]/g,''))-parseInt((a.price_text||'0').replace(/[^0-9]/g,'')));
@@ -1136,7 +1130,7 @@ async function loadDeals(reset=true) {
   noMore.style.display='none';
 
   try {
-    const res = await fetch(API_URL + `/api/deals?page=${currentPage}&limit=20`);
+    const res = await fetch(API_URL + `/api/deals?page=${currentPage}&limit=20${currentCat?'&seller='+encodeURIComponent(currentCat):''}`);
     const data = await res.json();
 
     if(reset) {
@@ -1193,13 +1187,14 @@ toggleBtn.addEventListener('click',()=>{
 });
 
 // 필터
-document.querySelectorAll('.chip').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.chip').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    currentCat=btn.dataset.cat;
-    renderGrid();
-  });
+// 카테고리 칩 클릭 (동적으로 생성되므로 이벤트 위임)
+document.getElementById('filter-chips').addEventListener('click', e=>{
+  const btn = e.target.closest('.chip');
+  if(!btn) return;
+  document.querySelectorAll('.chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentCat = btn.dataset.cat;
+  loadDeals(true);
 });
 
 document.getElementById('sort-select').addEventListener('change',e=>{
@@ -1209,6 +1204,21 @@ document.getElementById('sort-select').addEventListener('change',e=>{
 
 // ── API BASE URL ──
 const API_URL = 'https://one0hotdeal.onrender.com';
+
+// ── 카테고리 동적 로드 ──
+async function loadCategories() {
+  try {
+    const res = await fetch(API_URL + '/api/categories');
+    const cats = await res.json();
+    const wrap = document.getElementById('filter-chips');
+    const extra = cats.map(c =>
+      `<button class="chip" data-cat="${c}">${c}</button>`
+    ).join('');
+    wrap.innerHTML = '<button class="chip active" data-cat="">전체</button>' + extra;
+  } catch(e) {
+    console.error('카테고리 로드 실패:', e);
+  }
+}
 
 // ── 티커 로드 ──
 async function loadTicker() {
@@ -1313,7 +1323,7 @@ const scrollObserver = new IntersectionObserver((entries) => {
 
 scrollObserver.observe(document.getElementById('load-spinner'));
 
-setTimeout(()=>{loadTicker();loadDeals(true);startTimer();},700);
+setTimeout(()=>{loadCategories();loadTicker();loadDeals(true);startTimer();},700);
 </script>
 </body>
 </html>
