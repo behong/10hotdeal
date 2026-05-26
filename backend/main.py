@@ -127,7 +127,7 @@ async def get_categories(request: Request):
 # ── 딜 목록 (페이지네이션) ──
 @app.get("/api/deals")
 @limiter.limit("30/minute")
-async def get_deals(request: Request, page: int = 1, limit: int = 20, seller: str = ''):
+async def get_deals(request: Request, page: int = 1, limit: int = 40, seller: str = ''):
     offset = (page - 1) * limit
     try:
         conn = get_conn()
