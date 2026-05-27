@@ -10,6 +10,7 @@ from fastapi_cache.decorator import cache
 from contextlib import asynccontextmanager
 import psycopg2
 import psycopg2.extras
+import psycopg2.pool
 import os
 from dotenv import load_dotenv
 
@@ -22,7 +23,15 @@ limiter = Limiter(key_func=get_remote_address)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     FastAPICache.init(InMemoryBackend())
+    # DB 연결 풀 초기화 (최소 1개, 최대 5개)
+    global db_pool
+    db_pool = psycopg2.pool.SimpleConnectionPool(
+        1, 5,
+        os.getenv("DATABASE_URL")
+    )
     yield
+    # 앱 종료 시 풀 닫기
+    db_pool.closeall()
 
 app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
@@ -41,9 +50,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── DB 연결 ──
+# ── DB 연결 풀 (전역) ──
+db_pool = None
+
 def get_conn():
-    return psycopg2.connect(os.getenv("DATABASE_URL"))
+    return db_pool.getconn()
+
+def release_conn(conn):
+    db_pool.putconn(conn)
 
 # ── 이미지 URL 정리 ──
 def clean_image_url(url):
@@ -87,9 +101,10 @@ async def get_categories(request: Request):
             LIMIT 10
         """)
         rows = cur.fetchall()
-        conn.close()
+        release_conn(conn)
         return [r["seller_type"] for r in rows if r["seller_type"]]
     except Exception as e:
+        if 'conn' in locals(): release_conn(conn)
         raise HTTPException(status_code=500, detail="카테고리 로드 실패")
 
 # ── 딜 목록 (페이지네이션) ──
@@ -137,7 +152,7 @@ async def get_deals(request: Request, page: int = 1, limit: int = 40, seller: st
                 LIMIT %s OFFSET %s
             """, (limit, offset))
         rows = cur.fetchall()
-        conn.close()
+        release_conn(conn)
 
         return {
             "items": fill_images(rows),
@@ -146,6 +161,7 @@ async def get_deals(request: Request, page: int = 1, limit: int = 40, seller: st
             "has_more": (offset + limit) < int(total)
         }
     except Exception as e:
+        if 'conn' in locals(): release_conn(conn)
         raise HTTPException(status_code=500, detail="데이터를 불러올 수 없어요")
 
 # ── 티커용 인기 딜 ──
@@ -163,9 +179,10 @@ async def get_ticker(request: Request):
             LIMIT 10
         """)
         rows = cur.fetchall()
-        conn.close()
+        release_conn(conn)
         return list(rows)
     except Exception as e:
+        if 'conn' in locals(): release_conn(conn)
         raise HTTPException(status_code=500, detail="티커 데이터를 불러올 수 없어요")
     
     # ── 검색 ──
@@ -199,8 +216,9 @@ async def search_deals(request: Request, q: str = ""):
             LIMIT 50
         """, (f"%{q}%", f"%{q}%"))
         rows = cur.fetchall()
-        conn.close()
+        release_conn(conn)
 
         return fill_images(rows)
     except Exception as e:
+        if 'conn' in locals(): release_conn(conn)
         raise HTTPException(status_code=500, detail="검색 중 오류가 발생했어요")
