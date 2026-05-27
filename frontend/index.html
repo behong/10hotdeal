@@ -974,6 +974,54 @@ footer {
   .hot-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .hot-card-body { padding: 8px 10px; }
 }
+
+/* ── 공유 버튼 ── */
+.share-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+
+.share-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  color: var(--text2);
+}
+
+.share-btn:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.08); }
+.share-btn.tg:hover { border-color: #2AABEE; color: #2AABEE; }
+.share-btn.kakao:hover { border-color: #FEE500; color: #3C1E1E; background: #FEE500; }
+.share-btn.copy:hover { border-color: #22c55e; color: #22c55e; }
+
+/* 복사 완료 토스트 */
+.copy-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--bg3);
+  border: 1px solid #22c55e;
+  color: #22c55e;
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 999;
+  transition: transform 0.3s ease;
+  pointer-events: none;
+}
+.copy-toast.show { transform: translateX(-50%) translateY(0); }
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
@@ -1187,6 +1235,7 @@ footer {
 </footer>
 
 <div class="toast" id="toast">🔄 새로운 핫딜이 업데이트됐어요!</div>
+<div class="copy-toast" id="copy-toast">✅ 링크가 복사됐어요!</div>
 
 <script>
 // 더미 데이터 제거 (실제 API 사용)
@@ -1276,7 +1325,11 @@ function renderCard(deal,idx){
           ${getFreshness(deal.last_seen_at)==='new'?'<span class="time-badge new">NEW</span>':''}
           ${recCount>=10&&getFreshness(deal.last_seen_at)!=='new'?'<span class="time-badge hot-rec">HOT</span>':''}
         </div>
-        <button class="card-btn" onclick="event.stopPropagation();window.open('${linkUrl}','_blank')">구매하기 →</button>
+        <div class="share-wrap">
+          <button class="share-btn tg" title="텔레그램 공유" onclick="event.stopPropagation();shareTelegram('${title.replace(/'/g,"\\'")}','${linkUrl}')">✈</button>
+          <button class="share-btn copy" title="링크 복사" onclick="event.stopPropagation();copyLink('${linkUrl}')">🔗</button>
+          <button class="card-btn" onclick="event.stopPropagation();window.open('${linkUrl}','_blank')">구매 →</button>
+        </div>
       </div>
     </div>
   </div>`;
@@ -1391,6 +1444,30 @@ document.getElementById('sort-select').addEventListener('change',e=>{
 
 // ── API BASE URL ──
 const API_URL = 'https://one0hotdeal.onrender.com';
+
+// ── 공유 함수 ──
+function shareTelegram(title, url) {
+  const text = encodeURIComponent(title + '\n\n' + url + '\n\n🔥 더 많은 핫딜 → https://hot.hongzi.us');
+  window.open('https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + text, '_blank');
+}
+
+function copyLink(url) {
+  navigator.clipboard.writeText(url).then(() => {
+    const t = document.getElementById('copy-toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const t = document.getElementById('copy-toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  });
+}
 
 // ── 인기 딜 랭킹 로드 ──
 async function loadHotDeals() {
