@@ -814,6 +814,166 @@ footer {
   font-size: 13px;
   color: var(--text3);
 }
+
+/* ── 인기 딜 랭킹 섹션 ── */
+.hot-section { margin-bottom: 2rem; }
+.hot-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.hot-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+}
+.hot-section-title span { font-size: 18px; }
+.hot-live-badge {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(255,45,45,0.12);
+  color: var(--accent);
+  font-weight: 500;
+  border: 1px solid rgba(255,45,45,0.25);
+}
+.hot-section-sub { font-size: 12px; color: var(--text3); }
+.hot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+.hot-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s;
+  position: relative;
+}
+.hot-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(255,45,45,0.1);
+}
+.hot-card.rank-1 { border: 2px solid var(--accent); }
+.hot-rank {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  z-index: 2;
+}
+.hot-rank.r1 { background: var(--accent); color: white; }
+.hot-rank.r2, .hot-rank.r3 { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
+.hot-rank.rn { background: var(--bg3); color: var(--text3); border: 1px solid var(--border); }
+.hot-card-img {
+  aspect-ratio: 1/1;
+  background: var(--bg3);
+  overflow: hidden;
+}
+.hot-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hot-card-img .ph {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+.hot-card-body { padding: 10px 12px; }
+.hot-card-seller { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+.hot-card-title {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: calc(12px * 1.5 * 2);
+  margin-bottom: 6px;
+}
+.hot-card-price { font-size: 15px; font-weight: 700; color: var(--accent); font-family: 'Black Han Sans', sans-serif; }
+.hot-card-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text3);
+}
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0 0 1.5rem;
+}
+.latest-section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text2);
+  margin-bottom: 14px;
+}
+
+/* ── 날짜 표시 (A 스타일) ── */
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  margin-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.card-time-wrap { display: flex; align-items: center; gap: 5px; }
+.freshness-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot-new { background: #22c55e; box-shadow: 0 0 4px rgba(34,197,94,0.5); }
+.dot-recent { background: #f59e0b; }
+.dot-old { background: var(--text3); }
+.card-time {
+  font-size: 11px;
+  color: var(--text3);
+}
+.card-time.is-new { color: #22c55e; }
+.card-time.is-recent { color: #f59e0b; }
+.time-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+}
+.time-badge.new { background: rgba(34,197,94,0.15); color: #22c55e; }
+.time-badge.hot-rec { background: rgba(255,45,45,0.12); color: var(--accent); }
+
+@media (max-width: 600px) {
+  .hot-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .hot-card-body { padding: 8px 10px; }
+}
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
@@ -928,6 +1088,23 @@ footer {
     </select>
   </div>
 
+<!-- 인기 딜 랭킹 -->
+<div class="hot-section" id="hot-section" style="display:none">
+  <div class="hot-section-header">
+    <div class="hot-section-title">
+      <span>🔥</span> 지금 인기 딜
+      <span class="hot-live-badge">TOP 5</span>
+    </div>
+    <span class="hot-section-sub">추천수 기준</span>
+  </div>
+  <div class="hot-grid" id="hot-grid"></div>
+</div>
+
+<hr class="section-divider" id="section-divider" style="display:none">
+<div class="latest-section-title" id="latest-title" style="display:none">
+  🕐 최신 딜
+</div>
+
 <div class="deals-grid" id="deals-grid">
   <div class="skeleton-card">
     <div class="skeleton sk-img"></div>
@@ -1022,7 +1199,15 @@ function timeAgo(d){
   const s=Math.floor((Date.now()-new Date(d))/1000);
   if(s<60) return s+'초 전';
   if(s<3600) return Math.floor(s/60)+'분 전';
-  return Math.floor(s/3600)+'시간 전';
+  if(s<86400) return Math.floor(s/3600)+'시간 전';
+  return Math.floor(s/86400)+'일 전';
+}
+
+function getFreshness(d) {
+  const s = Math.floor((Date.now()-new Date(d))/1000);
+  if(s < 3600) return 'new';       // 1시간 이내
+  if(s < 21600) return 'recent';   // 6시간 이내
+  return 'old';
 }
 
 function nowStr(){
@@ -1085,7 +1270,12 @@ function renderCard(deal,idx){
         </div>
       </div>
       <div class="card-footer">
-        <span class="card-time">🕐 ${timeAgo(deal.last_seen_at)} &nbsp;👍 ${recCount} 💬 ${cmtCount}</span>
+        <div class="card-time-wrap">
+          <span class="freshness-dot dot-${getFreshness(deal.last_seen_at)}"></span>
+          <span class="card-time is-${getFreshness(deal.last_seen_at)}">${timeAgo(deal.last_seen_at)}</span>
+          ${getFreshness(deal.last_seen_at)==='new'?'<span class="time-badge new">NEW</span>':''}
+          ${recCount>=10&&getFreshness(deal.last_seen_at)!=='new'?'<span class="time-badge hot-rec">HOT</span>':''}
+        </div>
         <button class="card-btn" onclick="event.stopPropagation();window.open('${linkUrl}','_blank')">구매하기 →</button>
       </div>
     </div>
@@ -1202,6 +1392,50 @@ document.getElementById('sort-select').addEventListener('change',e=>{
 // ── API BASE URL ──
 const API_URL = 'https://one0hotdeal.onrender.com';
 
+// ── 인기 딜 랭킹 로드 ──
+async function loadHotDeals() {
+  try {
+    const res = await fetch(API_URL + '/api/deals?page=1&limit=20&sort=hot');
+    const data = await res.json();
+    const top5 = [...data.items]
+      .sort((a,b)=>(b.recommendation_count||0)-(a.recommendation_count||0))
+      .slice(0,5);
+    if(!top5.length) return;
+
+    const rankClass = ['r1','r2','r3','rn','rn'];
+    const grid = document.getElementById('hot-grid');
+    grid.innerHTML = top5.map((deal, i) => {
+      const img = deal.image_url || '';
+      const title = deal.product_name || deal.title || '';
+      const price = parseInt((deal.price_text||'0').replace(/[^0-9]/g,''));
+      const link = deal.affiliate_url || deal.source_url || '#';
+      return `
+      <div class="hot-card ${i===0?'rank-1':''}" onclick="window.open('${link}','_blank')">
+        <div class="hot-rank ${rankClass[i]}">${i+1}</div>
+        <div class="hot-card-img">
+          ${img
+            ? `<img src="${img}" alt="${title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=ph>🛒</div>'">`
+            : `<div class="ph">🛒</div>`}
+        </div>
+        <div class="hot-card-body">
+          <div class="hot-card-seller">${deal.seller_type||''}</div>
+          <div class="hot-card-title">${title}</div>
+          <div class="hot-card-price">${isNaN(price)?deal.price_text:price.toLocaleString()+'원'}</div>
+          <div class="hot-card-stats">
+            👍 ${deal.recommendation_count||0} &nbsp; 💬 ${deal.comment_count||0}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('hot-section').style.display = 'block';
+    document.getElementById('section-divider').style.display = 'block';
+    document.getElementById('latest-title').style.display = 'flex';
+  } catch(e) {
+    console.error('인기딜 로드 실패:', e);
+  }
+}
+
 // ── 카테고리 동적 로드 ──
 async function loadCategories() {
   try {
@@ -1247,6 +1481,9 @@ async function searchDeals(q) {
   const label = document.getElementById('search-result-label');
 
   // 로딩 표시
+  document.getElementById('hot-section').style.display='none';
+  document.getElementById('section-divider').style.display='none';
+  document.getElementById('latest-title').style.display='none';
   grid.innerHTML = `
     ${[...Array(4)].map(()=>`
     <div class="skeleton-card">
@@ -1280,6 +1517,7 @@ function clearSearch() {
   if(label) label.innerHTML = '';
   isSearching = false;
   loadDeals(true);
+  loadHotDeals();
 }
 
 // 검색 입력 이벤트
@@ -1325,7 +1563,7 @@ function onScroll() {
 
 window.addEventListener('scroll', onScroll, { passive: true });
 
-setTimeout(()=>{loadCategories();loadTicker();loadDeals(true);},700);
+setTimeout(()=>{loadCategories();loadTicker();loadDeals(true);loadHotDeals();},700);
 </script>
 </body>
 </html>
