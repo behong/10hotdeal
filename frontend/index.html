@@ -1022,6 +1022,202 @@ footer {
   pointer-events: none;
 }
 .copy-toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── 딜 모달 ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(20px) scale(0.97);
+  transition: transform 0.25s ease;
+}
+.modal-overlay.open .modal-box {
+  transform: translateY(0) scale(1);
+}
+.modal-img {
+  aspect-ratio: 16/9;
+  background: var(--bg3);
+  overflow: hidden;
+  position: relative;
+  border-radius: 16px 16px 0 0;
+}
+.modal-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.modal-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52px;
+}
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.modal-close:hover { background: rgba(0,0,0,0.8); }
+.modal-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 5px;
+}
+.modal-body { padding: 1.25rem; }
+.modal-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.modal-seller {
+  font-size: 11px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.modal-time {
+  font-size: 11px;
+  color: var(--text3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.modal-title {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--text);
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+.modal-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.modal-price {
+  font-size: 28px;
+  font-family: 'Black Han Sans', sans-serif;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+}
+.modal-original {
+  font-size: 14px;
+  color: var(--text3);
+  text-decoration: line-through;
+}
+.modal-stats {
+  display: flex;
+  gap: 16px;
+  padding: 10px 14px;
+  background: var(--bg3);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+.modal-stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--text2);
+}
+.modal-btns {
+  display: flex;
+  gap: 8px;
+}
+.modal-buy-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  color: white;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: opacity 0.2s;
+}
+.modal-buy-btn:hover { opacity: 0.85; }
+.modal-icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s;
+}
+.modal-icon-btn.tg { color: #2AABEE; }
+.modal-icon-btn.tg:hover { background: rgba(42,171,238,0.15); border-color: #2AABEE; }
+.modal-icon-btn.cp { color: #22c55e; }
+.modal-icon-btn.cp:hover { background: rgba(34,197,94,0.15); border-color: #22c55e; }
+.modal-source {
+  display: block;
+  text-align: center;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text3);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.modal-source:hover { color: var(--text2); }
+
+@media (max-width: 600px) {
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal-box { max-width: 100%; border-radius: 16px 16px 0 0; max-height: 85vh; }
+  .modal-img { border-radius: 16px 16px 0 0; }
+  .modal-price { font-size: 24px; }
+}
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
@@ -1296,6 +1492,34 @@ footer {
 
 <div class="toast" id="toast">🔄 새로운 핫딜이 업데이트됐어요!</div>
 <div class="copy-toast" id="copy-toast">✅ 링크가 복사됐어요!</div>
+
+<!-- 딜 모달 -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-box" id="modal-box">
+    <div class="modal-img" id="modal-img">
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+      <span class="modal-badge" id="modal-badge" style="display:none"></span>
+    </div>
+    <div class="modal-body">
+      <div class="modal-meta">
+        <span class="modal-seller" id="modal-seller"></span>
+        <span class="modal-time" id="modal-time"></span>
+      </div>
+      <p class="modal-title" id="modal-title"></p>
+      <div class="modal-price-row">
+        <span class="modal-price" id="modal-price"></span>
+        <span class="modal-original" id="modal-original"></span>
+      </div>
+      <div class="modal-stats" id="modal-stats"></div>
+      <div class="modal-btns">
+        <button class="modal-buy-btn" id="modal-buy-btn">🛒 구매하러 가기</button>
+        <button class="modal-icon-btn tg" id="modal-tg-btn" title="텔레그램 공유">✈</button>
+        <button class="modal-icon-btn cp" id="modal-cp-btn" title="링크 복사">🔗</button>
+      </div>
+      <a class="modal-source" id="modal-source" href="#" target="_blank">↗ 원본 게시글 보기</a>
+    </div>
+  </div>
+</div>
 <button class="scroll-top-btn" id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="맨 위로">↑</button>
 
 <script>
@@ -1356,7 +1580,7 @@ function renderCard(deal,idx){
   const recCount = deal.recommendation_count || 0;
   const cmtCount = deal.comment_count || 0;
   return `
-  <div class="deal-card" style="animation-delay:${idx*0.05}s" onclick="window.open('${linkUrl}','_blank')">
+  <div class="deal-card" style="animation-delay:${idx*0.05}s" onclick="openModal(event, ${JSON.stringify({title,imgUrl,linkUrl,price:priceRaw,seller:deal.seller_type||deal.source||'',recCount,cmtCount,lastSeen:deal.last_seen_at,sourceUrl:deal.source_url||''})})">
     <div class="card-badges">
       ${recCount>=10?'<span class="badge badge-hot">HOT</span>':''}
       ${isNew?'<span class="badge badge-new">NEW</span>':''}
@@ -1480,11 +1704,21 @@ function showToast(){
 
 // 테마 토글
 const toggleBtn=document.getElementById('theme-toggle');
+
+// 저장된 테마 불러오기
+(function(){
+  const saved = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  toggleBtn.textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+
 toggleBtn.addEventListener('click',()=>{
   const html=document.documentElement;
   const isDark=html.getAttribute('data-theme')==='dark';
-  html.setAttribute('data-theme',isDark?'light':'dark');
-  toggleBtn.textContent=isDark?'🌙':'☀️';
+  const next = isDark ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  toggleBtn.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', next);
 });
 
 // 필터
@@ -1505,6 +1739,74 @@ document.getElementById('sort-select').addEventListener('change',e=>{
 
 // ── API BASE URL ──
 const API_URL = 'https://one0hotdeal.onrender.com';
+
+// ── 모달 ──
+function openModal(e, deal) {
+  const overlay = document.getElementById('modal-overlay');
+  const img = document.getElementById('modal-img');
+  const badge = document.getElementById('modal-badge');
+  const fresh = getFreshness(deal.lastSeen);
+
+  // 이미지
+  img.innerHTML = `<button class="modal-close" onclick="closeModalDirect()">✕</button>
+    <span class="modal-badge" id="modal-badge" style="${fresh==='new'?'display:block;background:#22c55e;color:white':'display:none'}">NEW</span>`;
+  if(deal.imgUrl) {
+    const i = document.createElement('img');
+    i.src = deal.imgUrl;
+    i.alt = deal.title;
+    i.onerror = () => { i.parentElement.innerHTML += '<div class="modal-img-placeholder">🛒</div>'; i.remove(); };
+    img.insertBefore(i, img.firstChild);
+  } else {
+    const ph = document.createElement('div');
+    ph.className = 'modal-img-placeholder';
+    ph.textContent = '🛒';
+    img.insertBefore(ph, img.firstChild);
+  }
+
+  // 내용 채우기
+  document.getElementById('modal-seller').textContent = deal.seller;
+  document.getElementById('modal-time').innerHTML = '🕐 ' + timeAgo(deal.lastSeen);
+  document.getElementById('modal-title').textContent = deal.title;
+
+  const priceNum = parseInt((deal.price||'0').replace(/[^0-9]/g,''));
+  document.getElementById('modal-price').textContent = isNaN(priceNum) ? deal.price : priceNum.toLocaleString() + '원';
+  document.getElementById('modal-original').textContent = '';
+
+  document.getElementById('modal-stats').innerHTML = `
+    <div class="modal-stat">👍 ${deal.recCount} 추천</div>
+    <div class="modal-stat">💬 ${deal.cmtCount} 댓글</div>`;
+
+  // 버튼
+  document.getElementById('modal-buy-btn').onclick = () => window.open(deal.linkUrl, '_blank');
+  document.getElementById('modal-tg-btn').onclick = () => shareTelegram(deal.title, deal.linkUrl);
+  document.getElementById('modal-cp-btn').onclick = () => copyLink(deal.linkUrl);
+
+  // 원본 링크
+  const src = document.getElementById('modal-source');
+  if(deal.sourceUrl && deal.sourceUrl !== '#') {
+    src.href = deal.sourceUrl;
+    src.style.display = 'block';
+  } else {
+    src.style.display = 'none';
+  }
+
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if(e.target === document.getElementById('modal-overlay')) closeModalDirect();
+}
+
+function closeModalDirect() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ESC 키로 모달 닫기
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') closeModalDirect();
+});
 
 // ── 공유 함수 ──
 function shareTelegram(title, url) {
