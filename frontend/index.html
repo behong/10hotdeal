@@ -573,13 +573,39 @@ main {
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.sk-img { height: 240px; border-radius: 0; }
-.sk-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.sk-img {
+  aspect-ratio: 1/1;
+  border-radius: 0;
+  flex-shrink: 0;
+}
+
+.sk-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 8px;
+}
+
+.sk-seller { height: 10px; width: 35%; }
 .sk-line { height: 13px; }
 .sk-line.s { width: 55%; }
-.sk-price { height: 22px; width: 40%; }
+.sk-line.m { width: 80%; }
+.sk-price { height: 22px; width: 45%; margin-top: 4px; }
+.sk-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+}
+.sk-time { height: 10px; width: 30%; }
+.sk-btn { height: 28px; width: 65px; border-radius: 6px; }
 
 /* ── EMPTY ── */
 .empty-state {
@@ -1413,38 +1439,105 @@ footer {
   <div class="skeleton-card">
     <div class="skeleton sk-img"></div>
     <div class="sk-body">
+      <div class="skeleton sk-seller"></div>
+      <div class="skeleton sk-line m"></div>
       <div class="skeleton sk-line s"></div>
-      <div class="skeleton sk-line"></div>
-      <div class="skeleton sk-line"></div>
       <div class="skeleton sk-price"></div>
+      <div class="sk-footer">
+        <div class="skeleton sk-time"></div>
+        <div class="skeleton sk-btn"></div>
+      </div>
     </div>
   </div>
   <div class="skeleton-card">
     <div class="skeleton sk-img"></div>
     <div class="sk-body">
+      <div class="skeleton sk-seller"></div>
+      <div class="skeleton sk-line m"></div>
       <div class="skeleton sk-line s"></div>
-      <div class="skeleton sk-line"></div>
-      <div class="skeleton sk-line"></div>
       <div class="skeleton sk-price"></div>
+      <div class="sk-footer">
+        <div class="skeleton sk-time"></div>
+        <div class="skeleton sk-btn"></div>
+      </div>
     </div>
   </div>
   <div class="skeleton-card">
     <div class="skeleton sk-img"></div>
     <div class="sk-body">
+      <div class="skeleton sk-seller"></div>
+      <div class="skeleton sk-line m"></div>
       <div class="skeleton sk-line s"></div>
-      <div class="skeleton sk-line"></div>
-      <div class="skeleton sk-line"></div>
       <div class="skeleton sk-price"></div>
+      <div class="sk-footer">
+        <div class="skeleton sk-time"></div>
+        <div class="skeleton sk-btn"></div>
+      </div>
     </div>
   </div>
-
   <div class="skeleton-card">
     <div class="skeleton sk-img"></div>
     <div class="sk-body">
+      <div class="skeleton sk-seller"></div>
+      <div class="skeleton sk-line m"></div>
       <div class="skeleton sk-line s"></div>
-      <div class="skeleton sk-line"></div>
-      <div class="skeleton sk-line"></div>
       <div class="skeleton sk-price"></div>
+      <div class="sk-footer">
+        <div class="skeleton sk-time"></div>
+        <div class="skeleton sk-btn"></div>
+      </div>
+    </div>
+  </div>
+  <div class="skeleton-card">
+    <div class="skeleton sk-img"></div>
+    <div class="sk-body">
+      <div class="skeleton sk-seller"></div>
+      <div class="skeleton sk-line m"></div>
+      <div class="skeleton sk-line s"></div>
+      <div class="skeleton sk-price"></div>
+      <div class="sk-footer">
+        <div class="skeleton sk-time"></div>
+        <div class="skeleton sk-btn"></div>
+      </div>
+    </div>
+  </div>
+  <div class="skeleton-card">
+    <div class="skeleton sk-img"></div>
+    <div class="sk-body">
+      <div class="skeleton sk-seller"></div>
+      <div class="skeleton sk-line m"></div>
+      <div class="skeleton sk-line s"></div>
+      <div class="skeleton sk-price"></div>
+      <div class="sk-footer">
+        <div class="skeleton sk-time"></div>
+        <div class="skeleton sk-btn"></div>
+      </div>
+    </div>
+  </div>
+  <div class="skeleton-card">
+    <div class="skeleton sk-img"></div>
+    <div class="sk-body">
+      <div class="skeleton sk-seller"></div>
+      <div class="skeleton sk-line m"></div>
+      <div class="skeleton sk-line s"></div>
+      <div class="skeleton sk-price"></div>
+      <div class="sk-footer">
+        <div class="skeleton sk-time"></div>
+        <div class="skeleton sk-btn"></div>
+      </div>
+    </div>
+  </div>
+  <div class="skeleton-card">
+    <div class="skeleton sk-img"></div>
+    <div class="sk-body">
+      <div class="skeleton sk-seller"></div>
+      <div class="skeleton sk-line m"></div>
+      <div class="skeleton sk-line s"></div>
+      <div class="skeleton sk-price"></div>
+      <div class="sk-footer">
+        <div class="skeleton sk-time"></div>
+        <div class="skeleton sk-btn"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1646,11 +1739,31 @@ async function loadDeals(reset=true) {
 
   const spinner=document.getElementById('load-spinner');
   const noMore=document.getElementById('no-more');
-  spinner.style.display='flex';
+  const grid=document.getElementById('deals-grid');
   noMore.style.display='none';
 
+  // 리셋 시 스켈레톤 표시, 추가 로드 시 스피너 표시
+  if(reset) {
+    grid.innerHTML = Array(8).fill(`
+      <div class="skeleton-card">
+        <div class="skeleton sk-img"></div>
+        <div class="sk-body">
+          <div class="skeleton sk-seller"></div>
+          <div class="skeleton sk-line m"></div>
+          <div class="skeleton sk-line s"></div>
+          <div class="skeleton sk-price"></div>
+          <div class="sk-footer">
+            <div class="skeleton sk-time"></div>
+            <div class="skeleton sk-btn"></div>
+          </div>
+        </div>
+      </div>`).join('');
+  } else {
+    spinner.style.display='flex';
+  }
+
   try {
-    const res = await fetch(API_URL + `/api/deals?page=${currentPage}&limit=40${currentCat?'&seller='+encodeURIComponent(currentCat):''}`);
+    const res = await fetch(API_URL + `\/api\/deals?page=${currentPage}&limit=40${currentCat?'&seller='+encodeURIComponent(currentCat):''}`);
     const data = await res.json();
 
     totalDeals = data.total;
@@ -1660,14 +1773,12 @@ async function loadDeals(reset=true) {
     if(reset) {
       allDeals = data.items;
       renderGrid();
-      // 렌더링 완료 후 스피너 숨김
       requestAnimationFrame(() => {
         spinner.style.display='none';
         if(!hasMore) noMore.style.display='block';
         isLoading=false;
       });
     } else {
-      const grid = document.getElementById('deals-grid');
       const startIdx = allDeals.length;
       allDeals = [...allDeals, ...data.items];
       const newCards = data.items.map((d,i)=>renderCard(d, startIdx+i)).join('');
