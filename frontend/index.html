@@ -584,24 +584,41 @@ main {
 }
 
 .sk-body {
-  padding: 14px;
+  padding: 14px;        /* card-body 와 동일 */
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 8px;
 }
 
-.sk-seller { height: 10px; width: 35%; }
-.sk-line { height: 13px; }
-.sk-line.s { width: 55%; }
-.sk-line.m { width: 80%; }
-.sk-price { height: 22px; width: 45%; margin-top: 4px; }
+/* card-seller 와 동일 크기 */
+.sk-seller { height: 11px; width: 35%; margin-bottom: 5px; }
+
+/* card-title 과 동일 높이 (2줄 고정) */
+.sk-title {
+  height: calc(13px * 1.55 * 2);
+  flex-shrink: 0;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+/* card-price-row 와 동일 */
+.sk-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+}
+.sk-price { height: 22px; width: 45%; }
+.sk-price-right { height: 22px; width: 30%; }
+
+/* card-footer 와 동일 */
 .sk-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding-top: 10px;
-  margin-top: auto;
+  margin-top: 10px;
   border-top: 1px solid var(--border);
 }
 .sk-time { height: 10px; width: 30%; }
@@ -1440,9 +1457,11 @@ footer {
     <div class="skeleton sk-img"></div>
     <div class="sk-body">
       <div class="skeleton sk-seller"></div>
-      <div class="skeleton sk-line m"></div>
-      <div class="skeleton sk-line s"></div>
-      <div class="skeleton sk-price"></div>
+      <div class="skeleton sk-title"></div>
+      <div class="sk-price-row">
+        <div class="skeleton sk-price"></div>
+        <div class="skeleton sk-price-right"></div>
+      </div>
       <div class="sk-footer">
         <div class="skeleton sk-time"></div>
         <div class="skeleton sk-btn"></div>
@@ -1453,9 +1472,11 @@ footer {
     <div class="skeleton sk-img"></div>
     <div class="sk-body">
       <div class="skeleton sk-seller"></div>
-      <div class="skeleton sk-line m"></div>
-      <div class="skeleton sk-line s"></div>
-      <div class="skeleton sk-price"></div>
+      <div class="skeleton sk-title"></div>
+      <div class="sk-price-row">
+        <div class="skeleton sk-price"></div>
+        <div class="skeleton sk-price-right"></div>
+      </div>
       <div class="sk-footer">
         <div class="skeleton sk-time"></div>
         <div class="skeleton sk-btn"></div>
@@ -1466,9 +1487,11 @@ footer {
     <div class="skeleton sk-img"></div>
     <div class="sk-body">
       <div class="skeleton sk-seller"></div>
-      <div class="skeleton sk-line m"></div>
-      <div class="skeleton sk-line s"></div>
-      <div class="skeleton sk-price"></div>
+      <div class="skeleton sk-title"></div>
+      <div class="sk-price-row">
+        <div class="skeleton sk-price"></div>
+        <div class="skeleton sk-price-right"></div>
+      </div>
       <div class="sk-footer">
         <div class="skeleton sk-time"></div>
         <div class="skeleton sk-btn"></div>
@@ -1479,9 +1502,11 @@ footer {
     <div class="skeleton sk-img"></div>
     <div class="sk-body">
       <div class="skeleton sk-seller"></div>
-      <div class="skeleton sk-line m"></div>
-      <div class="skeleton sk-line s"></div>
-      <div class="skeleton sk-price"></div>
+      <div class="skeleton sk-title"></div>
+      <div class="sk-price-row">
+        <div class="skeleton sk-price"></div>
+        <div class="skeleton sk-price-right"></div>
+      </div>
       <div class="sk-footer">
         <div class="skeleton sk-time"></div>
         <div class="skeleton sk-btn"></div>
@@ -1492,9 +1517,11 @@ footer {
     <div class="skeleton sk-img"></div>
     <div class="sk-body">
       <div class="skeleton sk-seller"></div>
-      <div class="skeleton sk-line m"></div>
-      <div class="skeleton sk-line s"></div>
-      <div class="skeleton sk-price"></div>
+      <div class="skeleton sk-title"></div>
+      <div class="sk-price-row">
+        <div class="skeleton sk-price"></div>
+        <div class="skeleton sk-price-right"></div>
+      </div>
       <div class="sk-footer">
         <div class="skeleton sk-time"></div>
         <div class="skeleton sk-btn"></div>
@@ -1505,9 +1532,11 @@ footer {
     <div class="skeleton sk-img"></div>
     <div class="sk-body">
       <div class="skeleton sk-seller"></div>
-      <div class="skeleton sk-line m"></div>
-      <div class="skeleton sk-line s"></div>
-      <div class="skeleton sk-price"></div>
+      <div class="skeleton sk-title"></div>
+      <div class="sk-price-row">
+        <div class="skeleton sk-price"></div>
+        <div class="skeleton sk-price-right"></div>
+      </div>
       <div class="sk-footer">
         <div class="skeleton sk-time"></div>
         <div class="skeleton sk-btn"></div>
@@ -1518,9 +1547,11 @@ footer {
     <div class="skeleton sk-img"></div>
     <div class="sk-body">
       <div class="skeleton sk-seller"></div>
-      <div class="skeleton sk-line m"></div>
-      <div class="skeleton sk-line s"></div>
-      <div class="skeleton sk-price"></div>
+      <div class="skeleton sk-title"></div>
+      <div class="sk-price-row">
+        <div class="skeleton sk-price"></div>
+        <div class="skeleton sk-price-right"></div>
+      </div>
       <div class="sk-footer">
         <div class="skeleton sk-time"></div>
         <div class="skeleton sk-btn"></div>
@@ -1531,9 +1562,11 @@ footer {
     <div class="skeleton sk-img"></div>
     <div class="sk-body">
       <div class="skeleton sk-seller"></div>
-      <div class="skeleton sk-line m"></div>
-      <div class="skeleton sk-line s"></div>
-      <div class="skeleton sk-price"></div>
+      <div class="skeleton sk-title"></div>
+      <div class="sk-price-row">
+        <div class="skeleton sk-price"></div>
+        <div class="skeleton sk-price-right"></div>
+      </div>
       <div class="sk-footer">
         <div class="skeleton sk-time"></div>
         <div class="skeleton sk-btn"></div>
@@ -1749,9 +1782,11 @@ async function loadDeals(reset=true) {
         <div class="skeleton sk-img"></div>
         <div class="sk-body">
           <div class="skeleton sk-seller"></div>
-          <div class="skeleton sk-line m"></div>
-          <div class="skeleton sk-line s"></div>
-          <div class="skeleton sk-price"></div>
+          <div class="skeleton sk-title"></div>
+          <div class="sk-price-row">
+            <div class="skeleton sk-price"></div>
+            <div class="skeleton sk-price-right"></div>
+          </div>
           <div class="sk-footer">
             <div class="skeleton sk-time"></div>
             <div class="skeleton sk-btn"></div>
