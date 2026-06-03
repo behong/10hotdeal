@@ -1797,7 +1797,7 @@ async function loadDeals(reset=true) {
   }
 
   try {
-    const res = await fetch(API_URL + `\/api\/deals?page=${currentPage}&limit=40${currentCat?'&seller='+encodeURIComponent(currentCat):''}`);
+    const res = await fetch(API_URL + `/api/deals?page=${currentPage}&limit=40${currentCat?'&seller='+encodeURIComponent(currentCat):''}`);
     const data = await res.json();
 
     totalDeals = data.total;
@@ -1836,6 +1836,18 @@ async function loadDeals(reset=true) {
     console.error('로드 실패:', e);
     spinner.style.display='none';
     isLoading=false;
+
+    // 첫 로드 실패 시 3초 후 자동 재시도
+    if(reset && currentPage === 1) {
+      const grid = document.getElementById('deals-grid');
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-icon">⚠️</div>
+          <div class="empty-text">잠시 서버가 응답하지 않아요</div>
+          <div class="empty-sub" style="margin-top:8px">3초 후 자동으로 다시 시도합니다...</div>
+        </div>`;
+      setTimeout(() => loadDeals(true), 3000);
+    }
   }
 }
 
@@ -2158,7 +2170,13 @@ function onScroll() {
 
 window.addEventListener('scroll', onScroll, { passive: true });
 
-setTimeout(()=>{loadCategories();loadTicker();loadDeals(true);loadHotDeals();},700);
+// 초기 로드 — deals 우선, 나머지는 순차적으로
+setTimeout(async () => {
+  await loadDeals(true);          // 딜 목록 최우선
+  loadCategories();               // 카테고리 (병렬)
+  setTimeout(loadTicker, 200);    // 티커 200ms 후
+  setTimeout(loadHotDeals, 400);  // 인기딜 400ms 후
+}, 300);
 </script>
 </body>
 </html>
