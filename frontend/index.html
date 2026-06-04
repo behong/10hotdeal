@@ -1987,6 +1987,10 @@ async function loadHotDeals() {
     const data = await res.json();
     const top5 = [...data.items]
       .sort((a,b)=>(b.recommendation_count||0)-(a.recommendation_count||0))
+      .filter(d => {
+        const img = d.image_url || d.image_source;
+        return img && img.trim().toLowerCase() !== 'none' && img.trim().toLowerCase() !== 'null';
+      })
       .slice(0,5);
     if(!top5.length) return;
 
