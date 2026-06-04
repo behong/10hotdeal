@@ -1260,6 +1260,162 @@ footer {
   .modal-img { border-radius: 16px 16px 0 0; }
   .modal-price { font-size: 24px; }
 }
+
+/* ── 텔레그램 A/B 배너 ── */
+
+/* A: 헤더 아래 고정 배너 */
+.tg-banner-a {
+  background: #0d1b2a;
+  border-bottom: 1px solid #1a2d42;
+  padding: 10px 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  animation: slide-down 0.4s ease;
+}
+
+@keyframes slide-down {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.tg-banner-a-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.tg-banner-a-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tg-circle {
+  width: 34px;
+  height: 34px;
+  background: #2AABEE;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 17px;
+  color: white;
+}
+
+.tg-banner-a-title {
+  font-size: 13px;
+  color: white;
+  font-weight: 500;
+}
+
+.tg-banner-a-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  margin-top: 1px;
+}
+
+.tg-banner-a-btn {
+  background: #2AABEE;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 7px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.tg-banner-a-btn:hover { opacity: 0.85; }
+
+.tg-banner-a-close {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.35);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.tg-banner-a-close:hover { color: rgba(255,255,255,0.7); }
+
+/* B: 하단 플로팅 팝업 */
+.tg-popup-b {
+  position: fixed;
+  bottom: 5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  background: var(--bg2);
+  border: 1px solid #2AABEE;
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 340px;
+  max-width: calc(100vw - 2rem);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  z-index: 300;
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.tg-popup-b.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tg-popup-b-text { font-size: 13px; color: var(--text); font-weight: 500; }
+.tg-popup-b-sub { font-size: 11px; color: var(--text2); margin-top: 3px; }
+
+.tg-popup-b-btn {
+  background: #2AABEE;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.tg-popup-b-btn:hover { opacity: 0.85; }
+
+.tg-popup-b-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 15px;
+  padding: 2px;
+}
+
+@media (max-width: 600px) {
+  .tg-banner-a { padding: 10px 1rem; }
+  .tg-banner-a-sub { display: none; }
+  .tg-popup-b { width: calc(100vw - 2rem); bottom: 4rem; }
+}
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
@@ -1392,6 +1548,21 @@ footer {
     </div>
   </div>
 </header>
+
+<!-- 텔레그램 A 배너 (A/B 테스트) -->
+<div class="tg-banner-a" id="tg-banner-a" style="display:none">
+  <div class="tg-banner-a-inner">
+    <div class="tg-banner-a-left">
+      <div class="tg-circle">✈</div>
+      <div>
+        <div class="tg-banner-a-title">📢 새 딜 놓치지 마세요!</div>
+        <div class="tg-banner-a-sub">텔레그램 채널에서 실시간 알림 받기</div>
+      </div>
+    </div>
+    <button class="tg-banner-a-btn" onclick="trackAndGo('A')">채널 입장 →</button>
+    <button class="tg-banner-a-close" onclick="closeBanner()">✕</button>
+  </div>
+</div>
 
 <!-- 통계바 -->
 <div class="stats-bar">
@@ -1617,6 +1788,17 @@ footer {
 
 <div class="toast" id="toast">🔄 새로운 핫딜이 업데이트됐어요!</div>
 <div class="copy-toast" id="copy-toast">✅ 링크가 복사됐어요!</div>
+
+<!-- 텔레그램 B 팝업 (A/B 테스트) -->
+<div class="tg-popup-b" id="tg-popup-b">
+  <div class="tg-circle">✈</div>
+  <div style="flex:1">
+    <div class="tg-popup-b-text">📢 딜 알림 받기</div>
+    <div class="tg-popup-b-sub">텔레그램 구독하면 새 딜 바로 알림!</div>
+  </div>
+  <button class="tg-popup-b-btn" onclick="trackAndGo('B')">입장하기</button>
+  <button class="tg-popup-b-close" onclick="closePopup()">✕</button>
+</div>
 
 <!-- 딜 모달 -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
@@ -1884,6 +2066,54 @@ document.getElementById('sort-select').addEventListener('change',e=>{
   currentSort=e.target.value;
   renderGrid();
 });
+
+// ── 텔레그램 A/B 테스트 ──
+const TG_URL = 'https://t.me/tenseco';
+
+function initTgAB() {
+  // 이미 닫은 경우 표시 안 함
+  if(localStorage.getItem('tg_closed')) return;
+
+  // 랜덤 배정 (50:50), 기존 배정 유지
+  const variant = localStorage.getItem('tg_variant')
+    || (Math.random() < 0.5 ? 'A' : 'B');
+  localStorage.setItem('tg_variant', variant);
+
+  // GA 노출 이벤트
+  gtag('event', 'tg_banner_view', { variant });
+
+  if(variant === 'A') {
+    document.getElementById('tg-banner-a').style.display = 'block';
+  } else {
+    // B: 3초 후 팝업 표시
+    setTimeout(() => {
+      document.getElementById('tg-popup-b').classList.add('show');
+    }, 3000);
+  }
+}
+
+function trackAndGo(variant) {
+  gtag('event', 'tg_banner_click', { variant });
+  localStorage.setItem('tg_closed', '1');
+  window.open(TG_URL, '_blank');
+  closeBanner();
+  closePopup();
+}
+
+function closeBanner() {
+  const el = document.getElementById('tg-banner-a');
+  el.style.animation = 'none';
+  el.style.transform = 'translateY(-100%)';
+  el.style.opacity = '0';
+  el.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+  setTimeout(() => el.style.display = 'none', 300);
+  localStorage.setItem('tg_closed', '1');
+}
+
+function closePopup() {
+  document.getElementById('tg-popup-b').classList.remove('show');
+  localStorage.setItem('tg_closed', '1');
+}
 
 // ── API BASE URL ──
 const API_URL = 'https://one0hotdeal.onrender.com';
@@ -2166,6 +2396,7 @@ function onScroll() {
 window.addEventListener('scroll', onScroll, { passive: true });
 
 // 초기 로드 — deals 우선, 나머지는 순차적으로
+initTgAB();
 setTimeout(async () => {
   await loadDeals(true);          // 딜 목록 최우선
   loadCategories();               // 카테고리 (병렬)
