@@ -813,49 +813,67 @@ footer {
   .search-input { font-size: 14px; padding: 12px 0; }
 }
 
-/* ── 무한스크롤 로더 ── */
-.load-more-wrap {
-  display: flex;
-  justify-content: center;
+/* ── 페이지네이션 ── */
+.pagination-wrap {
   padding: 2rem 0;
-}
-
-.load-more-spinner {
-  display: none;
+  display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  color: var(--text3);
-  font-size: 13px;
 }
 
-.spinner-dots {
+.pagination-info {
+  font-size: 13px;
+  color: var(--text3);
+}
+
+.pagination-btns {
   display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pg-nav-btn {
+  display: flex;
+  align-items: center;
   gap: 6px;
-}
-
-.spinner-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--accent);
-  border-radius: 50%;
-  animation: dot-bounce 1.2s ease-in-out infinite;
-}
-
-.spinner-dot:nth-child(2) { animation-delay: 0.2s; }
-.spinner-dot:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes dot-bounce {
-  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-  40% { transform: scale(1); opacity: 1; }
-}
-
-.no-more-deals {
-  display: none;
-  text-align: center;
-  padding: 1.5rem;
+  padding: 9px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
   font-size: 13px;
-  color: var(--text3);
+  font-weight: 500;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pg-nav-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.pg-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.pg-info-box {
+  padding: 9px 16px;
+  border-radius: 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text2);
+  font-weight: 500;
+  min-width: 80px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .pg-nav-btn { padding: 8px 14px; font-size: 12px; }
+  .pagination-info { font-size: 12px; }
 }
 
 /* ── 인기 딜 랭킹 섹션 ── */
@@ -1745,17 +1763,18 @@ footer {
   </div>
 </div>
 
-  <!-- 무한스크롤 로더 -->
-  <div class="load-more-wrap">
-    <div class="load-more-spinner" id="load-spinner">
-      <div class="spinner-dots">
-        <div class="spinner-dot"></div>
-        <div class="spinner-dot"></div>
-        <div class="spinner-dot"></div>
-      </div>
-      <span>더 불러오는 중...</span>
+  <!-- 페이지네이션 -->
+  <div class="pagination-wrap" id="pagination-wrap" style="display:none">
+    <div class="pagination-info" id="pagination-info"></div>
+    <div class="pagination-btns">
+      <button class="pg-nav-btn" id="pg-prev" onclick="changePage(-1)" disabled>
+        ← 이전 페이지
+      </button>
+      <div class="pg-info-box" id="pg-box">1 / 1</div>
+      <button class="pg-nav-btn" id="pg-next" onclick="changePage(1)">
+        다음 페이지 →
+      </button>
     </div>
-    <div class="no-more-deals" id="no-more">모든 핫딜을 확인했어요 🎉</div>
   </div>
 </main>
 
@@ -1833,7 +1852,7 @@ footer {
 // 더미 데이터 제거 (실제 API 사용)
 
 let allDeals=[], currentCat='', currentSort='latest', isSearching=false;
-let currentPage=1, hasMore=true, isLoading=false, totalDeals=0;
+let currentPage=1, totalPages=1, isLoading=false, totalDeals=0;
 
 
 function timeAgo(d){
@@ -2022,6 +2041,29 @@ async function loadDeals(reset=true) {
       setTimeout(() => loadDeals(true), 3000);
     }
   }
+}
+
+function updatePagination(total) {
+  const wrap = document.getElementById('pagination-wrap');
+  const info = document.getElementById('pagination-info');
+  const box  = document.getElementById('pg-box');
+  const prev = document.getElementById('pg-prev');
+  const next = document.getElementById('pg-next');
+  const start = (currentPage-1)*40+1;
+  const end   = Math.min(currentPage*40, total);
+  info.textContent = `전체 ${total.toLocaleString()}개 중 ${start}-${end}개 표시`;
+  box.textContent  = `${currentPage} / ${totalPages}`;
+  prev.disabled    = currentPage <= 1;
+  next.disabled    = currentPage >= totalPages;
+  wrap.style.display = total > 0 ? 'flex' : 'none';
+  document.getElementById('stat-count').textContent = total;
+}
+
+function changePage(dir) {
+  const next = currentPage + dir;
+  if(next < 1 || next > totalPages) return;
+  currentPage = next;
+  loadDeals(false);
 }
 
 function showToast(){
@@ -2371,20 +2413,9 @@ document.getElementById('search-input').addEventListener('keydown', e => {
   }
 });
 
-// ── 스크롤 이벤트 (무한스크롤 + 상단버튼) ──
+// ── 스크롤 이벤트 (상단버튼만) ──
 function onScroll() {
   const scrollY = window.scrollY || window.pageYOffset;
-  const windowH = window.innerHeight;
-  const docH = document.documentElement.scrollHeight;
-
-  // 무한스크롤
-  if(!isSearching && hasMore && !isLoading) {
-    if(scrollY + windowH >= docH - 400) {
-      loadDeals(false);
-    }
-  }
-
-  // 상단 이동 버튼 (300px 이상 스크롤 시 표시)
   const topBtn = document.getElementById('scroll-top-btn');
   if(scrollY > 300) {
     topBtn.classList.add('visible');
