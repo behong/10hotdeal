@@ -830,49 +830,63 @@ footer {
 .pagination-btns {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.pg-nav-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 20px;
+.pg-btn {
+  min-width: 36px;
+  height: 36px;
   border-radius: 8px;
   border: 1px solid var(--border);
   background: var(--card);
-  color: var(--text);
+  color: var(--text2);
   font-size: 13px;
   font-weight: 500;
   font-family: 'Noto Sans KR', sans-serif;
   cursor: pointer;
   transition: all 0.2s;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 
-.pg-nav-btn:hover:not(:disabled) {
+.pg-btn:hover:not(:disabled) {
   border-color: var(--accent);
   color: var(--accent);
 }
 
-.pg-nav-btn:disabled {
+.pg-btn:disabled {
   opacity: 0.3;
   cursor: default;
 }
 
-.pg-info-box {
-  padding: 9px 16px;
-  border-radius: 8px;
-  background: var(--bg3);
-  border: 1px solid var(--border);
+.pg-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+  font-weight: 700;
+}
+
+.pg-btn.nav {
+  padding: 0 14px;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.pg-dots {
+  color: var(--text3);
   font-size: 13px;
-  color: var(--text2);
-  font-weight: 500;
-  min-width: 80px;
-  text-align: center;
+  padding: 0 4px;
+  line-height: 36px;
 }
 
 @media (max-width: 600px) {
-  .pg-nav-btn { padding: 8px 14px; font-size: 12px; }
+  .pg-btn { min-width: 32px; height: 32px; font-size: 12px; }
+  .pg-btn.nav { padding: 0 10px; }
   .pagination-info { font-size: 12px; }
 }
 
@@ -1766,15 +1780,7 @@ footer {
   <!-- 페이지네이션 -->
   <div class="pagination-wrap" id="pagination-wrap" style="display:none">
     <div class="pagination-info" id="pagination-info"></div>
-    <div class="pagination-btns">
-      <button class="pg-nav-btn" id="pg-prev" onclick="changePage(-1)" disabled>
-        ← 이전 페이지
-      </button>
-      <div class="pg-info-box" id="pg-box">1 / 1</div>
-      <button class="pg-nav-btn" id="pg-next" onclick="changePage(1)">
-        다음 페이지 →
-      </button>
-    </div>
+    <div class="pagination-btns" id="pagination-btns"></div>
   </div>
 </main>
 
@@ -2018,24 +2024,59 @@ async function loadDeals(reset=true) {
 function updatePagination(total) {
   const wrap = document.getElementById('pagination-wrap');
   const info = document.getElementById('pagination-info');
-  const box  = document.getElementById('pg-box');
-  const prev = document.getElementById('pg-prev');
-  const next = document.getElementById('pg-next');
+  const btns = document.getElementById('pagination-btns');
+
   const start = (currentPage-1)*40+1;
   const end   = Math.min(currentPage*40, total);
   info.textContent = `전체 ${total.toLocaleString()}개 중 ${start}-${end}개 표시`;
-  box.textContent  = `${currentPage} / ${totalPages}`;
-  prev.disabled    = currentPage <= 1;
-  next.disabled    = currentPage >= totalPages;
-  wrap.style.display = total > 0 ? 'flex' : 'none';
   document.getElementById('stat-count').textContent = total;
+
+  // 번호 버튼 생성
+  let html = '';
+
+  // 이전 버튼
+  html += `<button class="pg-btn nav" onclick="changePage(${currentPage-1})" ${currentPage<=1?'disabled':''}>← 이전</button>`;
+
+  // 페이지 번호 (최대 5개 표시)
+  const range = 2;
+  let startP = Math.max(1, currentPage - range);
+  let endP   = Math.min(totalPages, currentPage + range);
+
+  // 항상 5개 유지
+  if(endP - startP < 4) {
+    if(startP === 1) endP = Math.min(totalPages, startP + 4);
+    else startP = Math.max(1, endP - 4);
+  }
+
+  if(startP > 1) {
+    html += `<button class="pg-btn" onclick="goPage(1)">1</button>`;
+    if(startP > 2) html += `<span class="pg-dots">···</span>`;
+  }
+
+  for(let i=startP; i<=endP; i++) {
+    html += `<button class="pg-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+
+  if(endP < totalPages) {
+    if(endP < totalPages-1) html += `<span class="pg-dots">···</span>`;
+    html += `<button class="pg-btn" onclick="goPage(${totalPages})">${totalPages}</button>`;
+  }
+
+  // 다음 버튼
+  html += `<button class="pg-btn nav" onclick="changePage(${currentPage+1})" ${currentPage>=totalPages?'disabled':''}>다음 →</button>`;
+
+  btns.innerHTML = html;
+  wrap.style.display = total > 0 ? 'flex' : 'none';
 }
 
-function changePage(dir) {
-  const next = currentPage + dir;
-  if(next < 1 || next > totalPages) return;
-  currentPage = next;
+function goPage(page) {
+  if(page < 1 || page > totalPages || page === currentPage) return;
+  currentPage = page;
   loadDeals(false);
+}
+
+function changePage(page) {
+  goPage(page);
 }
 
 function showToast(){
