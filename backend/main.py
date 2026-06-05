@@ -77,11 +77,18 @@ def fill_images(rows):
         result.append(deal)
     return result
 
-# ── Health Check ──
+# ── Health Check (DB 쿼리 포함 → Neon 슬립 방지) ──
 @app.get("/health")
 @app.head("/health")
 def health():
-    return {"status": "ok"}
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT 1")  # Neon DB 슬립 방지
+        release_conn(conn)
+        return {"status": "ok", "db": "ok"}
+    except Exception as e:
+        return {"status": "ok", "db": "error"}
 
 # ── 카테고리(seller_type) 목록 ──
 @app.get("/api/categories")
