@@ -1962,84 +1962,56 @@ function renderGrid(){
 }
 
 async function loadDeals(reset=true) {
-  if(isLoading || (!hasMore && !reset)) return;
-  if(reset) {
-    currentPage=1;
-    hasMore=true;
-    allDeals=[];
-  }
+  if(isLoading) return;
+  if(reset) currentPage=1;
   isLoading=true;
 
-  const spinner=document.getElementById('load-spinner');
-  const noMore=document.getElementById('no-more');
   const grid=document.getElementById('deals-grid');
-  noMore.style.display='none';
+  const pagerWrap=document.getElementById('pagination-wrap');
+  pagerWrap.style.display='none';
 
-  // 리셋 시 스켈레톤 표시, 추가 로드 시 스피너 표시
-  if(reset) {
-    grid.innerHTML = Array(8).fill(`
-      <div class="skeleton-card">
-        <div class="skeleton sk-img"></div>
-        <div class="sk-body">
-          <div class="skeleton sk-seller"></div>
-          <div class="skeleton sk-title"></div>
-          <div class="sk-price-row">
-            <div class="skeleton sk-price"></div>
-            <div class="skeleton sk-price-right"></div>
-          </div>
-          <div class="sk-footer">
-            <div class="skeleton sk-time"></div>
-            <div class="skeleton sk-btn"></div>
-          </div>
+  // 스켈레톤 표시
+  grid.innerHTML = Array(8).fill(`
+    <div class="skeleton-card">
+      <div class="skeleton sk-img"></div>
+      <div class="sk-body">
+        <div class="skeleton sk-seller"></div>
+        <div class="skeleton sk-title"></div>
+        <div class="sk-price-row">
+          <div class="skeleton sk-price"></div>
+          <div class="skeleton sk-price-right"></div>
         </div>
-      </div>`).join('');
-  } else {
-    spinner.style.display='flex';
-  }
+        <div class="sk-footer">
+          <div class="skeleton sk-time"></div>
+          <div class="skeleton sk-btn"></div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  // 페이지 이동 시 딜 목록 상단으로
+  if(!reset) window.scrollTo({top: document.getElementById('deals-grid').offsetTop - 120, behavior: 'smooth'});
 
   try {
     const res = await fetch(API_URL + `/api/deals?page=${currentPage}&limit=40${currentCat?'&seller='+encodeURIComponent(currentCat):''}`);
     const data = await res.json();
 
     totalDeals = data.total;
-    hasMore = data.has_more;
-    currentPage++;
-
-    if(reset) {
-      allDeals = data.items;
-      renderGrid();
-      spinner.style.display='none';
-      if(!hasMore) noMore.style.display='block';
-      isLoading=false;  // ← 즉시 해제
-    } else {
-      const startIdx = allDeals.length;
-      allDeals = [...allDeals, ...data.items];
-      const newCards = data.items.map((d,i)=>renderCard(d, startIdx+i)).join('');
-
-      grid.insertAdjacentHTML('beforeend', newCards);
-      document.getElementById('stat-count').textContent=data.total;
-
-      spinner.style.display='none';
-      if(!hasMore) noMore.style.display='block';
-      isLoading=false;  // ← 즉시 해제 (setTimeout 제거)
-    }
+    totalPages = Math.ceil(data.total / 40);
+    allDeals = data.items;
+    renderGrid();
+    updatePagination(data.total);
+    isLoading=false;
 
   } catch(e) {
     console.error('로드 실패:', e);
-    spinner.style.display='none';
     isLoading=false;
-
-    // 첫 로드 실패 시 3초 후 자동 재시도
-    if(reset && currentPage === 1) {
-      const grid = document.getElementById('deals-grid');
-      grid.innerHTML = `
-        <div class="empty-state" style="grid-column:1/-1">
-          <div class="empty-icon">⚠️</div>
-          <div class="empty-text">잠시 서버가 응답하지 않아요</div>
-          <div class="empty-sub" style="margin-top:8px">3초 후 자동으로 다시 시도합니다...</div>
-        </div>`;
-      setTimeout(() => loadDeals(true), 3000);
-    }
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-icon">⚠️</div>
+        <div class="empty-text">잠시 서버가 응답하지 않아요</div>
+        <div class="empty-sub" style="margin-top:8px">3초 후 자동으로 다시 시도합니다...</div>
+      </div>`;
+    setTimeout(() => loadDeals(true), 3000);
   }
 }
 
