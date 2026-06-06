@@ -1449,14 +1449,36 @@ footer {
   .tg-popup-b { width: calc(100vw - 2rem); bottom: 4rem; }
 }
 
-/* ── 쿠팡 파트너스 표시 ── */
+/* ── 쿠팡 파트너스 경제적 이해관계 표시 ── */
+.affiliate-top-notice {
+  background: #fff7d6;
+  border-bottom: 1px solid #e2b94b;
+  color: #111;
+  padding: 10px 2rem;
+}
+
+.affiliate-top-notice-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.affiliate-top-notice strong,
+.partners-notice strong {
+  color: #b42318;
+  font-weight: 800;
+}
+
 .partners-notice {
-  font-size: 11px;
-  color: var(--text3);
-  line-height: 1.6;
-  padding: 8px 12px;
-  border-top: 1px solid var(--border);
-  margin-top: 10px;
+  max-width: 1400px;
+  margin: 1.5rem auto 0;
+  padding: 12px 2rem;
+  border-top: 1px solid #1e1e1e;
+  color: #aaa;
+  font-size: 12px;
+  line-height: 1.7;
 }
 
 ::-webkit-scrollbar { width: 5px; }
@@ -1591,6 +1613,13 @@ footer {
     </div>
   </div>
 </header>
+
+<!-- 쿠팡 파트너스 상단 고지 -->
+<div class="affiliate-top-notice" role="note" aria-label="쿠팡 파트너스 경제적 이해관계 고지">
+  <div class="affiliate-top-notice-inner">
+    <strong>[광고]</strong> 이 페이지는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
+  </div>
+</div>
 
 <!-- 텔레그램 A 배너 (A/B 테스트) -->
 <div class="tg-banner-a" id="tg-banner-a" style="display:none">
@@ -1820,8 +1849,8 @@ footer {
     <span>© 2026 핫딜존. All rights reserved.</span>
     
   </div>
-  <div class="partners-notice" style="max-width:1400px;margin:0 auto;padding:12px 2rem;">
-    ※ 이 사이트는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다. 소비자에게는 별도의 추가 비용이 발생하지 않습니다.
+  <div class="partners-notice" role="note" aria-label="쿠팡 파트너스 경제적 이해관계 고지">
+    <strong>[광고]</strong> 이 사이트는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다. 소비자에게는 별도의 추가 비용이 발생하지 않습니다.
   </div>
 </footer>
 
