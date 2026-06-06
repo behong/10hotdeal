@@ -1459,26 +1459,6 @@ footer {
   margin-top: 10px;
 }
 
-.card-partners {
-  font-size: 10px;
-  color: var(--text3);
-  padding-top: 6px;
-  margin-top: 4px;
-  border-top: 1px solid var(--border);
-  display: none;
-}
-
-.card-partners.show { display: block; }
-
-.modal-partners {
-  font-size: 11px;
-  color: var(--text3);
-  text-align: center;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
-  line-height: 1.5;
-}
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
@@ -1883,9 +1863,7 @@ footer {
         <button class="modal-icon-btn cp" id="modal-cp-btn" title="링크 복사">🔗</button>
       </div>
       <a class="modal-source" id="modal-source" href="#" target="_blank">↗ 원본 게시글 보기</a>
-      <p class="modal-partners" id="modal-partners" style="display:none">
-        ※ 쿠팡 파트너스 활동의 일환으로 소정의 수수료를 제공받습니다
-      </p>
+
     </div>
   </div>
 </div>
@@ -1972,7 +1950,7 @@ function renderCard(deal,idx){
           <span class="card-price">${isNaN(priceNum)?priceRaw:priceNum.toLocaleString()+'원'}</span>
         </div>
       </div>
-      ${linkUrl.includes('hongzi.us')?'<div class="card-partners show">※ 쿠팡 파트너스 링크 (수수료 발생)</div>':''}
+
       <div class="card-footer">
         <div class="card-time-wrap">
           <span class="freshness-dot dot-${getFreshness(deal.last_seen_at)}"></span>
@@ -2261,13 +2239,7 @@ function openModal(e, deal) {
     src.style.display = 'none';
   }
 
-  // 파트너스 문구 (affiliate_url 있는 경우 표시)
-  const partners = document.getElementById('modal-partners');
-  if(deal.linkUrl && deal.linkUrl.includes('hongzi.us')) {
-    partners.style.display = 'block';
-  } else {
-    partners.style.display = 'none';
-  }
+
 
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
