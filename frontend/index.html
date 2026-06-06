@@ -1451,24 +1451,27 @@ footer {
 
 /* ── 쿠팡 파트너스 경제적 이해관계 표시 ── */
 .affiliate-top-notice {
-  background: #fff7d6;
-  border-bottom: 1px solid #e2b94b;
-  color: #111;
-  padding: 10px 2rem;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  padding: 8px 2rem;
+  position: relative;
+  z-index: 90;
+  transition: background 0.3s, border-color 0.3s, color 0.3s;
 }
 
 .affiliate-top-notice-inner {
   max-width: 1400px;
   margin: 0 auto;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 400;
   line-height: 1.5;
 }
 
-.affiliate-top-notice strong,
-.partners-notice strong {
-  color: #b42318;
+.affiliate-top-notice strong {
+  color: var(--accent);
   font-weight: 800;
+  margin-right: 4px;
 }
 
 .partners-notice {
@@ -1479,6 +1482,27 @@ footer {
   color: #aaa;
   font-size: 12px;
   line-height: 1.7;
+}
+
+.partners-notice strong {
+  color: #aaa;
+  font-weight: 800;
+  margin-right: 4px;
+}
+
+@media (max-width: 600px) {
+  .affiliate-top-notice {
+    padding: 7px 1rem;
+  }
+
+  .affiliate-top-notice-inner {
+    font-size: 11px;
+  }
+
+  .partners-notice {
+    padding: 12px 1rem;
+    font-size: 11px;
+  }
 }
 
 ::-webkit-scrollbar { width: 5px; }
