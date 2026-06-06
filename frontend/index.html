@@ -1972,7 +1972,7 @@ function renderCard(deal,idx){
           <span class="card-price">${isNaN(priceNum)?priceRaw:priceNum.toLocaleString()+'원'}</span>
         </div>
       </div>
-      ${linkUrl.includes('hongzi.us')?'<div class="card-partners show">※ 파트너스 링크 (수수료 발생 가능)</div>':''}
+      ${linkUrl.includes('hongzi.us')?'<div class="card-partners show">※ 쿠팡 파트너스 링크 (수수료 발생)</div>':''}
       <div class="card-footer">
         <div class="card-time-wrap">
           <span class="freshness-dot dot-${getFreshness(deal.last_seen_at)}"></span>
