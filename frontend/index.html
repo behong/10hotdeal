@@ -1925,7 +1925,7 @@ footer {
 <script>
 // 더미 데이터 제거 (실제 API 사용)
 
-let allDeals=[], currentCat='', currentSort='latest', isSearching=false;
+let allDeals=[], currentCats=[], currentSort='latest', isSearching=false;
 let currentPage=1, totalPages=1, isLoading=false, totalDeals=0;
 
 
@@ -2067,7 +2067,7 @@ async function loadDeals(reset=true) {
   if(!reset) window.scrollTo({top: document.getElementById('deals-grid').offsetTop - 120, behavior: 'smooth'});
 
   try {
-    const res = await fetch(API_URL + `/api/deals?page=${currentPage}&limit=40${currentCat?'&seller='+encodeURIComponent(currentCat):''}`);
+    const res = await fetch(API_URL + `/api/deals?page=${currentPage}&limit=40${currentCats.length?'&sellers='+encodeURIComponent(currentCats.join(',')):''}` );
     const data = await res.json();
 
     totalDeals = data.total;
@@ -2180,9 +2180,35 @@ toggleBtn.addEventListener('click',()=>{
 document.getElementById('filter-chips').addEventListener('click', e=>{
   const btn = e.target.closest('.chip');
   if(!btn) return;
-  document.querySelectorAll('.chip').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  currentCat = btn.dataset.cat;
+
+  const cat = btn.dataset.cat;
+
+  // 전체 버튼 클릭 시 모두 해제
+  if(cat === '') {
+    document.querySelectorAll('.chip').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCats = [];
+    loadDeals(true);
+    return;
+  }
+
+  // 전체 버튼 해제
+  document.querySelector('.chip[data-cat=""]').classList.remove('active');
+
+  // 중복 선택 토글
+  if(btn.classList.contains('active')) {
+    btn.classList.remove('active');
+    currentCats = currentCats.filter(c => c !== cat);
+  } else {
+    btn.classList.add('active');
+    currentCats = [...currentCats, cat];
+  }
+
+  // 아무것도 선택 안 되면 전체로 복귀
+  if(currentCats.length === 0) {
+    document.querySelector('.chip[data-cat=""]').classList.add('active');
+  }
+
   loadDeals(true);
 });
 
@@ -2464,6 +2490,9 @@ function clearSearch() {
   clearBtn.style.display = 'none';
   if(label) label.innerHTML = '';
   isSearching = false;
+  currentCats = [];
+  document.querySelectorAll('.chip').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.chip[data-cat=""]').classList.add('active');
   loadDeals(true);
   loadHotDeals();
 }

@@ -103,6 +103,8 @@ async def get_categories(request: Request):
             FROM hot_deals
             WHERE seller_type IS NOT NULL
               AND seller_type != ''
+              AND seller_type NOT ILIKE '%coupang%'
+              AND seller_type NOT ILIKE '%쿠팡%'
             GROUP BY seller_type
             ORDER BY cnt DESC
             LIMIT 10
@@ -114,50 +116,50 @@ async def get_categories(request: Request):
         if 'conn' in locals(): release_conn(conn)
         raise HTTPException(status_code=500, detail="카테고리 로드 실패")
 
-# ── 딜 목록 (페이지네이션) ──
+# ── 딜 목록 (페이지네이션 + 다중 seller 필터) ──
 @app.get("/api/deals")
 @limiter.limit("30/minute")
-async def get_deals(request: Request, page: int = 1, limit: int = 40, seller: str = ''):
+async def get_deals(request: Request, page: int = 1, limit: int = 40, sellers: str = ''):
     offset = (page - 1) * limit
+    # 쉼표로 구분된 seller 목록 파싱
+    seller_list = [s.strip() for s in sellers.split(',') if s.strip()] if sellers else []
     try:
         conn = get_conn()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-        # 전체 개수 (seller 필터 적용)
-        if seller:
-            cur.execute("SELECT COUNT(*) as count FROM hot_deals WHERE seller_type = %s", (seller,))
+        # 전체 개수
+        if seller_list:
+            placeholders = ','.join(['%s'] * len(seller_list))
+            cur.execute(
+                f"SELECT COUNT(*) as count FROM hot_deals WHERE seller_type IN ({placeholders})",
+                seller_list
+            )
         else:
             cur.execute("SELECT COUNT(*) as count FROM hot_deals")
         total = cur.fetchone()["count"]
 
-        # 페이지 데이터 (seller 필터 적용)
-        if seller:
-            cur.execute("""
-                SELECT
-                    title, product_name, price_text,
-                    image_url, image_source,
-                    seller_type, seller_url,
-                    affiliate_url, source_url, source,
-                    recommendation_count, comment_count,
-                    last_seen_at
-                FROM hot_deals
-                WHERE seller_type = %s
-                ORDER BY last_seen_at DESC
-                LIMIT %s OFFSET %s
-            """, (seller, limit, offset))
+        # 페이지 데이터
+        select_sql = """
+            SELECT
+                title, product_name, price_text,
+                image_url, image_source,
+                seller_type, seller_url,
+                affiliate_url, source_url, source,
+                recommendation_count, comment_count,
+                last_seen_at
+            FROM hot_deals
+        """
+        if seller_list:
+            placeholders = ','.join(['%s'] * len(seller_list))
+            cur.execute(
+                select_sql + f"WHERE seller_type IN ({placeholders}) ORDER BY last_seen_at DESC LIMIT %s OFFSET %s",
+                seller_list + [limit, offset]
+            )
         else:
-            cur.execute("""
-                SELECT
-                    title, product_name, price_text,
-                    image_url, image_source,
-                    seller_type, seller_url,
-                    affiliate_url, source_url, source,
-                    recommendation_count, comment_count,
-                    last_seen_at
-                FROM hot_deals
-                ORDER BY last_seen_at DESC
-                LIMIT %s OFFSET %s
-            """, (limit, offset))
+            cur.execute(
+                select_sql + "ORDER BY last_seen_at DESC LIMIT %s OFFSET %s",
+                (limit, offset)
+            )
         rows = cur.fetchall()
         release_conn(conn)
 
