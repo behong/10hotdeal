@@ -741,9 +741,7 @@ footer {
 
 /* ── 검색창 ── */
 .search-wrap {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1.5rem 2rem 0;
+  margin-bottom: 1.5rem;
 }
 
 .search-box {
@@ -810,7 +808,6 @@ footer {
 }
 
 @media (max-width: 600px) {
-  .search-wrap { padding: 1rem 1rem 0; }
   .search-input { font-size: 14px; padding: 12px 0; }
 }
 
@@ -984,7 +981,7 @@ footer {
   height: calc(12px * 1.5 * 2);
   margin-bottom: 6px;
 }
-.hot-card-price { font-size: 14px; font-weight: 800; color: var(--accent); font-family: 'Noto Sans KR', sans-serif; letter-spacing: -0.3px; }
+.hot-card-price { font-size: 15px; font-weight: 700; color: var(--accent); font-family: 'Black Han Sans', sans-serif; }
 .hot-card-stats {
   display: flex;
   align-items: center;
@@ -1455,7 +1452,7 @@ footer {
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
   color: var(--text2);
-  padding: 8px 2rem;
+  padding: 8px 0;
   position: relative;
   z-index: 90;
   transition: background 0.3s, border-color 0.3s, color 0.3s;
@@ -1464,6 +1461,7 @@ footer {
 .affiliate-top-notice-inner {
   max-width: 1400px;
   margin: 0 auto;
+  padding: 0 2rem;
   font-size: 12px;
   font-weight: 400;
   line-height: 1.5;
@@ -1493,10 +1491,11 @@ footer {
 
 @media (max-width: 600px) {
   .affiliate-top-notice {
-    padding: 7px 1rem;
+    padding: 7px 0;
   }
 
   .affiliate-top-notice-inner {
+    padding: 0 1rem;
     font-size: 11px;
   }
 
@@ -1519,7 +1518,7 @@ footer {
   .header-sns { gap: 6px; margin-left: auto; }
   .sns-icon-btn { width: 30px; height: 30px; border-radius: 7px; }
   .theme-toggle { width: 30px; height: 30px; border-radius: 7px; font-size: 14px; }
-  .stats-inner { gap: 1rem; overflow-x: auto; padding-bottom: 2px; flex-wrap: nowrap; scrollbar-width: none; }
+  .stats-inner { gap: 1rem; overflow-x: auto; padding: 0 1rem 2px; flex-wrap: nowrap; scrollbar-width: none; }
   .stats-inner::-webkit-scrollbar { display: none; }
   .stat-item { flex-shrink: 0; font-size: 12px; }
   main { padding: 1rem; }
