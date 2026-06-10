@@ -111,34 +111,7 @@ body {
 }
 
 /* ── 티커 ── */
-.ticker-wrap {
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  overflow: hidden;
-  height: 32px;
-  display: flex;
-  align-items: center;
-}
 
-.ticker-track {
-  display: flex;
-  animation: ticker 30s linear infinite;
-  white-space: nowrap;
-}
-
-@keyframes ticker {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.ticker-item {
-  font-size: 12px;
-  font-weight: 700;
-  color: white;
-  padding: 0 2rem;
-  letter-spacing: 0.02em;
-}
-
-.ticker-sep { color: rgba(255,255,255,0.4); padding: 0 0.4rem; }
 
 /* ── HEADER ── */
 header {
@@ -928,7 +901,20 @@ footer {
   cursor: pointer;
   transition: transform 0.25s ease, box-shadow 0.25s;
   position: relative;
+  opacity: 0;
+  transform: translateY(18px);
+  animation: hot-card-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
+
+@keyframes hot-card-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hot-card:nth-child(1) { animation-delay: 0.05s; }
+.hot-card:nth-child(2) { animation-delay: 0.15s; }
+.hot-card:nth-child(3) { animation-delay: 0.25s; }
+.hot-card:nth-child(4) { animation-delay: 0.35s; }
+.hot-card:nth-child(5) { animation-delay: 0.45s; }
 .hot-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(255,45,45,0.1);
@@ -1533,8 +1519,7 @@ footer {
   .card-price { font-size: 18px; }
   .card-btn { padding: 5px 10px; font-size: 11px; }
   .card-time { font-size: 10px; }
-  .ticker-wrap { height: 28px; }
-  .ticker-item { font-size: 11px; padding: 0 1rem; }
+
   .footer-inner { grid-template-columns: 1fr; gap: 1.5rem; }
   .footer-sns-btn { width: 100%; }
   .footer-bottom { flex-direction: column; gap: 6px; text-align: center; }
@@ -1608,9 +1593,7 @@ footer {
 <body>
 
 <!-- 티커 -->
-<div class="ticker-wrap">
-  <div class="ticker-track" id="ticker-track"></div>
-</div>
+
 
 <!-- 헤더 -->
 <header>
@@ -2425,27 +2408,6 @@ async function loadCategories() {
   }
 }
 
-// ── 티커 로드 ──
-async function loadTicker() {
-  try {
-    const res = await fetch(API_URL + '/api/ticker');
-    const items = await res.json();
-    if (!items || !items.length) return;
-    const ICONS = ['🔥','⚡','🛒','💥','🎯','💸','🏷️','✨'];
-    // 무한루프를 위해 2배 복제
-    const all = [...items, ...items];
-    const html = all.map((d, i) => {
-      const icon = ICONS[i % ICONS.length];
-      const title = (d.product_name || d.title || '').slice(0, 22);
-      const price = d.price_text ? d.price_text : '';
-      return `<span class="ticker-item">${icon} ${title} <span class="ticker-sep">|</span> ${price}</span>`;
-    }).join('');
-    document.getElementById('ticker-track').innerHTML = html;
-  } catch(e) {
-    console.error('티커 로드 실패:', e);
-  }
-}
-
 
 // ── 검색 ──
 let searchTimer = null;
@@ -2544,8 +2506,7 @@ initTgAB();
 setTimeout(async () => {
   await loadDeals(true);          // 딜 목록 최우선
   loadCategories();               // 카테고리 (병렬)
-  setTimeout(loadTicker, 200);    // 티커 200ms 후
-  setTimeout(loadHotDeals, 400);  // 인기딜 400ms 후
+  setTimeout(loadHotDeals, 200);  // 인기딜 200ms 후
 }, 300);
 </script>
 </body>
