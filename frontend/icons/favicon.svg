@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff2d2d"/>
+      <stop offset="100%" stop-color="#ff8c00"/>
+    </linearGradient>
+    <linearGradient id="fl" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#ffe0a0"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="url(#bg)"/>
+  <path d="
+    M256 440
+    C196 400 164 344 176 284
+    C188 228 216 212 208 168
+    C232 212 224 252 248 268
+    C240 220 256 180 280 140
+    C288 196 272 236 296 272
+    C312 244 320 204 312 164
+    C352 212 356 276 332 324
+    C348 300 356 268 348 236
+    C388 288 388 360 356 408
+    C340 432 312 452 292 460
+    C272 468 260 460 256 440Z
+  " fill="url(#fl)"/>
+  <path d="
+    M256 428
+    C220 396 208 352 220 308
+    C230 272 248 256 244 224
+    C264 256 260 288 276 308
+    C284 280 288 248 280 216
+    C312 256 316 308 300 352
+    C308 332 312 304 308 276
+    C336 312 336 368 316 404
+    C306 420 284 436 268 440
+    C262 442 256 436 256 428Z
+  " fill="#ff8c00" opacity="0.4"/>
+</svg>
