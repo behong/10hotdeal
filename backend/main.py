@@ -8,7 +8,8 @@ import psycopg2.pool
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, PlainTextResponse
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
 from fastapi_cache.decorator import cache
@@ -63,6 +64,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.mount("/icons", StaticFiles(directory=FRONTEND_DIR / "icons"), name="icons")
+
 
 def get_conn():
     if db_pool is None:
@@ -102,6 +105,11 @@ def robots() -> str:
     return path.read_text(encoding="utf-8") if path.exists() else "User-agent: *\nAllow: /\n"
 
 
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return FileResponse(FRONTEND_DIR / "icons" / "favicon-32x32.png", media_type="image/png")
+
+
 @app.get("/health")
 @app.head("/health")
 def health():
@@ -132,17 +140,26 @@ async def get_categories(request: Request):
             FROM hot_deals
             WHERE seller_type IS NOT NULL
               AND seller_type != ''
-              AND seller_type NOT ILIKE '%coupang%'
-              AND seller_type NOT ILIKE '%쿠팡%'
             GROUP BY seller_type
-            ORDER BY cnt DESC
-            LIMIT 10
+            ORDER BY
+              CASE
+                WHEN seller_type ILIKE '%쿠팡%' OR seller_type ILIKE '%coupang%' THEN 1
+                WHEN seller_type ILIKE '%11번가%' OR seller_type ILIKE '%11st%' THEN 2
+                WHEN seller_type ILIKE '%지마켓%' OR seller_type ILIKE '%gmarket%' THEN 3
+                WHEN seller_type ILIKE '%옥션%' OR seller_type ILIKE '%auction%' THEN 4
+                WHEN seller_type ILIKE '%네이버%' OR seller_type ILIKE '%naver%' THEN 5
+                WHEN seller_type ILIKE '%알리%' OR seller_type ILIKE '%ali%' THEN 6
+                ELSE 99
+              END,
+              cnt DESC,
+              seller_type ASC
+            LIMIT 12
             """
         )
         rows = cur.fetchall()
         return [r["seller_type"] for r in rows if r["seller_type"]]
     except Exception:
-        raise HTTPException(status_code=500, detail="카테고리 로드 실패")
+        raise HTTPException(status_code=500, detail="쇼핑몰 필터 로드 실패")
     finally:
         if conn is not None:
             release_conn(conn)
