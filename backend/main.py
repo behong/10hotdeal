@@ -79,16 +79,22 @@ def release_conn(conn) -> None:
 
 
 def clean_image_url(url):
-    if not url or str(url).strip().lower() in ("none", "null", ""):
+    if not url:
         return None
-    return url
+    value = str(url).strip()
+    if value.lower() in ("none", "null", "nan", ""):
+        return None
+    if value.startswith(("http://", "https://", "//", "data:image/")):
+        return value
+    return None
 
 
 def fill_images(rows):
     result = []
     for row in rows:
         deal = dict(row)
-        deal["image_url"] = clean_image_url(deal.get("image_url")) or clean_image_url(deal.get("image_source"))
+        deal["image_source"] = clean_image_url(deal.get("image_source"))
+        deal["image_url"] = clean_image_url(deal.get("image_url")) or deal["image_source"]
         result.append(deal)
     return result
 

@@ -973,7 +973,16 @@ footer {
   height: calc(12px * 1.5 * 2);
   margin-bottom: 6px;
 }
-.hot-card-price { font-size: 15px; font-weight: 700; color: var(--accent); font-family: 'Black Han Sans', sans-serif; }
+.hot-card-price {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--accent);
+  font-family: 'Noto Sans KR', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 .hot-card-stats {
   display: flex;
   align-items: center;
@@ -1543,15 +1552,16 @@ footer {
   .share-btn { width: 26px; height: 26px; font-size: 12px; }
   .card-price { font-size: 16px; }
   .card-time-wrap { flex-wrap: wrap; }
-  .hot-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .hot-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .hot-card-body { padding: 8px; }
   .hot-card-title { font-size: 11px; }
-  .hot-card-price { font-size: 13px; }
+  .hot-card-price { font-size: 15px; }
 }
 
 @media (max-width: 360px) {
   .card-footer { gap: 6px; }
   .hot-grid { grid-template-columns: repeat(2, 1fr); }
+  .hot-card-price { font-size: 14px; }
   .share-btn { width: 24px; height: 24px; font-size: 11px; }
 }
 
